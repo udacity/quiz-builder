@@ -30,16 +30,48 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         background-color: var(--primary-color);
         color: white;
       }
+      paper-button {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 16px;
+        width: 5em;
+        background-color: var(--accent-color);
+      }
+      .edit {
+        width: 70%;
+        margin-right: 8px;
+      }
+      .output {
+        width: 30%;
+        margin-left: 8px;
+      }
     </style>
-    <div class="student-code">
-      <paper-material>
-        <paper-tabs selected="{{selected}}">
-          <paper-tab>Start Code</paper-tab>
-          <paper-tab>Correct Code</paper-tab>
-          <paper-tab>Grading Code</paper-tab>
-        </paper-tabs>
-        <juicy-ace-editor wrapmode="true" mode="ace/mode/javascript" theme="ace/theme/clouds" id="editor">{{currentCode}}</juicy-ace-editor>
-      </paper-material>
+    <div class="layout horizontal justified">
+      <div class="edit">
+        <paper-button raised>Run!</paper-button>
+        <paper-material>
+          <paper-tabs selected="{{selected}}">
+            <paper-tab>Start Code</paper-tab>
+            <paper-tab>Correct Code</paper-tab>
+            <paper-tab>Grading Code</paper-tab>
+          </paper-tabs>
+          <juicy-ace-editor wrapmode="true" mode="ace/mode/javascript" theme="ace/theme/clouds" id="editor">{{currentCode}}</juicy-ace-editor>
+        </paper-material>
+      </div>
+      <div class="output">
+        <h3>Output</h3>
+        <div class="layout horizontal justified">
+          <div class="start">
+            <h4>start</h4>
+            <div class="result start">something</div>
+          </div>
+          <div class="correct">
+            <h4>correct</h4>
+            <div class="result correct">else</div>
+          </div>
+        </div>
+      </div>
     </div>
   </template>
 

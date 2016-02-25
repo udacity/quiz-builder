@@ -8,7 +8,8 @@
     "paper-elements": "PolymerElements/paper-elements#^1.0.1",
     "platinum-elements": "PolymerElements/platinum-elements#^1.1.0",
     "polymer": "Polymer/polymer#^1.2.0",
-    "juicy-ace-editor": "~1.1.1"
+    "juicy-ace-editor": "~1.1.1",
+    "paper-button": "PolymerElements/paper-button#~1.0.11"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"
