@@ -50,12 +50,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       Polymer({
         is: 'programming-quiz',
         attached: function() {
-          // this.querySelector('.wrap').onclick = function () {
-          //   var ace = this.querySelector('juicy-ace-editor');
-          //   ace.editor.session.setUseWrapMode(true);
-          // }
+          var self = this;
           this.ace = this.querySelector('#editor');
+          // to match the starting tab
           this.currentCode = this.startCode;
+
+          // update the model
+          this.ace.addEventListener('change', function (e) {
+            if (self.selected === 0) {
+              self.startCode = e.target.value;
+            } else if (self.selected === 1) {
+              self.correctCode = e.target.value;
+            } else if (self.selected === 2) {
+              this.gradingCode = e.target.value;
+            }
+          })
         },
 
         properties: {
