@@ -29,20 +29,27 @@
         background-color: var(--accent-color);
       }
       .edit {
-        width: 70%;
+        width: 60%;
         margin-right: 8px;
       }
       .output {
-        width: 30%;
+        width: 40%;
         margin-left: 8px;
       }
-      .iframe {
-        height: 300px;
+      .iframe-container {
+        height: 0px;
+      }
+      .output-line {
+        /* something */
+      }
+      .mono {
+        font-family: monospace;
+        font-size: 1.5em;
       }
     </style>
     <div class="layout horizontal justified">
       <div class="edit">
-        <paper-button raised>Run!</paper-button>
+        <paper-button raised id="run">Run!</paper-button>
         <paper-material>
           <paper-tabs selected="{{selected}}">
             <paper-tab>Start Code</paper-tab>
@@ -59,12 +66,22 @@
         </div>
         <div class="layout horizontal justified">
           <div class="start">
-            <h4>start</h4>
-            <div class="result start">something</div>
+            <h4>Start Code</h4>
+            <div class="result start">
+              <p class="output-line">Correct: <span class="mono">{{sCorrect}}</span></p>
+              <p class="output-line">Feedback: <span class="mono">{{sFeedback}}</span></p>
+              <p class="output-line">Comment: <span class="mono">{{sComment}}</span></p>
+              <p class="output-line">Congrats: <span class="mono">{{sCongrats}}</span></p>
+            </div>
           </div>
           <div class="correct">
-            <h4>correct</h4>
-            <div class="result correct">else</div>
+            <h4>Correct Code</h4>
+            <div class="result correct">
+              <p class="output-line">Correct: <span class="mono">{{cCorrect}}</span></p>
+              <p class="output-line">Feedback: <span class="mono">{{cFeedback}}</span></p>
+              <p class="output-line">Comment: <span class="mono">{{cComment}}</span></p>
+              <p class="output-line">Congrats: <span class="mono">{{cCongrats}}</span></p>
+            </div>
           </div>
         </div>
       </div>
@@ -97,12 +114,27 @@
           // for use with generating iframes
           this.iframeContainer = this.querySelector('.iframe-container');
 
-          window.testing = function() { console.log('testing!'); }
+          window.performSubmission = function(results) {
+            console.log(results);
+          }
 
-          this.generateIframe([{
-            type: 'script',
-            content: 'window.parent.testing()'
-          }]);
+          // this.generateIframe([{
+          //   type: 'script',
+          //   content: 'window.parent.performSubmission()'
+          // }]);
+
+          this.runButton = this.querySelector('#run');
+
+          this.runButton.onclick = function(argument) {
+            self.generateIframe([{
+              type: 'script',
+              content: self.startCode
+            }]);
+            self.generateIframe([{
+              type: 'script',
+              content: self.gradingCode
+            }]);
+          }
         },
 
         properties: {
@@ -120,6 +152,46 @@
             notify: true,
             value: '// students see this when they start'
           },
+          sCorrect: {
+            type: String,
+            notify: true,
+            value: 'TBD'
+          },
+          sFeedback: {
+            type: String,
+            notify: true,
+            value: 'TBD'
+          },
+          sComment: {
+            type: String,
+            notify: true,
+            value: 'TBD'
+          },
+          sCongrats: {
+            type: String,
+            notify: true,
+            value: 'TBD'
+          },
+          cCorrect: {
+            type: String,
+            notify: true,
+            value: 'TBD'
+          },
+          cFeedback: {
+            type: String,
+            notify: true,
+            value: 'TBD'
+          },
+          cComment: {
+            type: String,
+            notify: true,
+            value: 'TBD'
+          },
+          cCongrats: {
+            type: String,
+            notify: true,
+            value: 'TBD'
+          },
           correctCode: {
             type: String,
             notify: true,
@@ -128,7 +200,7 @@
           gradingCode: {
             type: String,
             notify: true,
-            value: '// grade their code'
+            value: '// use this method to register student results!\nperformSubmission({\n\tisCorrect: false,\n\ttest_feedback: \'think about this to do better\',\n\ttest_comment: \'things that went well\',\n\tcongrats: \'nice job!\'\n});'
           },
           selected: {
             type: Number,
@@ -155,6 +227,7 @@
 
           var content = '';
 
+          content = '<script>performSubmission = window.parent.performSubmission\<\/script>';
           args.forEach(function(arg) {
             switch (arg.type) {
               case 'script':
@@ -168,7 +241,6 @@
                 break;
             }
           });
-
 
           var iframe = document.createElement('iframe');
           iframe.setAttribute('frameborder', 0);
