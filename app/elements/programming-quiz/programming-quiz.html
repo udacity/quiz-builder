@@ -28,6 +28,15 @@
         width: 5em;
         background-color: var(--accent-color);
       }
+
+      .is-correct {
+        color: green;
+      }
+
+      .is-incorrect {
+        color: red;
+      }
+
       .edit {
         width: 60%;
         margin-right: 8px;
@@ -39,12 +48,15 @@
       .iframe-container {
         height: 0px;
       }
+      .result {
+        width: 50%;
+      }
       .output-line {
         /* something */
       }
       .mono {
         font-family: monospace;
-        font-size: 1.5em;
+        font-weight: bold;
       }
     </style>
     <div class="layout horizontal justified">
@@ -65,23 +77,19 @@
           
         </div>
         <div class="layout horizontal justified">
-          <div class="start">
+          <div class="result start">
             <h4>Start Code</h4>
-            <div class="result start">
-              <p class="output-line">Correct: <span class="mono">{{start.correct}}</span></p>
-              <p class="output-line">Feedback: <span class="mono">{{start.feedback}}</span></p>
-              <p class="output-line">Comment: <span class="mono">{{start.comment}}</span></p>
-              <p class="output-line">Congrats: <span class="mono">{{start.congrats}}</span></p>
-            </div>
+            <p class="output-line">Correct: <span class$="mono {{formatCorrect(start.is_correct)}}">{{start.is_correct}}</span></p>
+            <p class="output-line">Feedback</p><p class="mono">{{start.test_feedback}}</p>
+            <p class="output-line">Comment</p><p class="mono">{{start.test_comments}}</p>
+            <p class="output-line">Congrats Message</p><p class="mono">{{start.congrats}}</p>
           </div>
-          <div class="correct">
+          <div class="result correct">
             <h4>Correct Code</h4>
-            <div class="result correct">
-              <p class="output-line">Correct: <span class="mono">{{correct.correct}}</span></p>
-              <p class="output-line">Feedback: <span class="mono">{{correct.feedback}}</span></p>
-              <p class="output-line">Comment: <span class="mono">{{correct.comment}}</span></p>
-              <p class="output-line">Congrats: <span class="mono">{{correct.congrats}}</span></p>
-            </div>
+            <p class="output-line">Correct: <span class$="mono {{formatCorrect(correct.is_correct)}}">{{correct.is_correct}}</span></p>
+            <p class="output-line">Feedback</p><p class="mono">{{correct.test_feedback}}</p>
+            <p class="output-line">Comment</p><p class="mono">{{correct.test_comments}}</p>
+            <p class="output-line">Congrats Message</p><p class="mono">{{correct.congrats}}</p>
           </div>
         </div>
       </div>
@@ -98,7 +106,6 @@
           var self = this;
           this.ace = this.querySelector('#editor');
           // to match the starting tab
-          // this.currentCode = this.startCode;
           this.currentCode = this.start.code;
 
           // update the model
@@ -112,24 +119,42 @@
             }
           });
 
+          // keyboard shortcuts
+          var cmdDown = false;
+          window.addEventListener('keydown', function(e) {
+            if (e.keyCode === 91 || e.keyCode === 93 || e.keyCode === 17 || e.keyCode === 224) {
+              cmdDown = true;
+            }
+
+            if (e.keyCode === 13 && cmdDown) {
+              self.runButton.onclick();
+            }
+          });
+
+          window.addEventListener('keyup', function(e) {
+            if (e.keyCode === 91 || e.keyCode === 93 || e.keyCode === 17 || e.keyCode === 224) {
+              cmdDown = false;
+            }
+          });
+
           // for use with generating iframes
           this.iframeContainer = this.querySelector('.iframe-container');
           this.runButton = this.querySelector('#run');
 
           window.performSubmission = function(results, id) {
-            console.log(results, id);
             if (!results) { throw new Error('Missing results object!'); }
-            console.log(self[id]);
+
+            self.set(id + '.is_correct', results['is_correct']);
+            self.set(id + '.test_feedback', results['test_feedback']);
+            self.set(id + '.test_comments', results['test_comments']);
+            self.set(id + '.congrats', results['congrats']);
           }
 
           function runStartCode() {
-            // change the scope of performSubmission so that it returns here
             self.generateIframe('script', self.start.code, 'start');
-            // bonus points if you can return the results asynchronously
           }
 
           function runCorrectCode() {
-            // change the scope of performSubmission so that it returns here
             self.generateIframe('script', self.correct.code, 'correct');
           }
 
@@ -154,9 +179,9 @@
             notify: true,
             value: {
               code: '// students see this when they start',
-              correct: 'TBD',
-              feedback: 'TBD',
-              comment: 'TBD',
+              is_correct: 'TBD',
+              test_feedback: 'TBD',
+              test_comments: 'TBD',
               congrats: 'TBD'
             }
           },
@@ -165,16 +190,16 @@
             notify: true,
             value: {
               code: '// this code is correct',
-              correct: 'TBD',
-              feedback: 'TBD',
-              comment: 'TBD',
+              is_correct: 'TBD',
+              test_feedback: 'TBD',
+              test_comments: 'TBD',
               congrats: 'TBD'
             }
           },
           gradingCode: {
             type: String,
             notify: true,
-            value: '// use this method to register student results!\nperformSubmission({\n\tisCorrect: false,\n\ttest_feedback: \'think about this to do better\',\n\ttest_comment: \'things that went well\',\n\tcongrats: \'nice job!\'\n});'
+            value: '// use this method to register student results!\nperformSubmission({\n\tis_correct: false,\n\ttest_feedback: \'think about this to do better\',\n\ttest_comments: \'things that went well\',\n\tcongrats: \'nice job!\'\n});'
           },
           selected: {
             type: Number,
@@ -192,14 +217,14 @@
               this.currentCode = this.gradingCode;
             }
           } catch (e) {
-            console.error(e);
             return;
           }
         },
         generateIframe: function(type, content, id) {
-          // TODO: clear it or build a new one?
-          // this.iframeContainer.innerHTML = '';
-          var iFrameContent = '<html><head></head><body><script>var performSubmission = function(o){ window.parent.performSubmission(o, \'' + id + '\'); };<\/script>';
+          if (this.iframeContainer.children.length >= 2) {
+            this.iframeContainer.innerHTML = '';
+          }
+          var iFrameContent = '<html><head><script src="../bower_components/jquery/dist/jquery.min.js"><\/script><script>var performSubmission = function(o){ window.parent.performSubmission(o, \'' + id + '\'); };<\/script>' + '</head><body>';
           switch (type) {
             case 'script':
               iFrameContent = iFrameContent + '<script>' + content + '<\/script>';
@@ -218,6 +243,15 @@
           iframe.setAttribute('frameborder', 0);
           iframe.srcdoc = iFrameContent;
           this.iframeContainer.appendChild(iframe);
+        },
+        formatCorrect: function(isCorrect) {
+          if (isCorrect === true) {
+            return 'is-correct';
+          } else if (isCorrect === false) {
+            return 'is-incorrect';
+          } else {
+            return '';
+          }
         }
       });
     })();
