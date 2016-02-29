@@ -131,6 +131,7 @@ gulp.task('copy', function() {
     '!app/cache-config.json',
     '!**/.DS_Store',
     'app/bower_components/ace-builds/src-min-noconflict/mode-javascript.js',
+    'app/bower_components/ace-builds/src-min-noconflict/mode-html.js',
     'app/bower_components/ace-builds/src-min-noconflict/theme-clouds.js'
   ], {
     dot: true

@@ -1,6 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
-<dom-module id="programming-quiz">
+<dom-module id="iframe-quiz">
   <template>
     <style include="shared-styles">
       :host {
@@ -61,7 +61,12 @@
       }
 
       .iframe-container {
-        height: 0px;
+        height: 200px;
+        background-color: white;
+      }
+
+      iframe {
+        max-width: 50%;
       }
 
       .result {
@@ -91,16 +96,15 @@
         </div>
         <paper-material>
           <paper-tabs selected="{{selected}}">
-            <paper-tab>Start Code</paper-tab>
-            <paper-tab>Correct Code</paper-tab>
+            <paper-tab>Start HTML</paper-tab>
+            <paper-tab>Correct HTML</paper-tab>
             <paper-tab>Grading Code</paper-tab>
           </paper-tabs>
-          <juicy-ace-editor wrapmode="true" mode="ace/mode/javascript" theme="ace/theme/clouds" id="editor">{{currentCode}}</juicy-ace-editor>
+          <juicy-ace-editor wrapmode="true" mode$="ace/mode/{{mode}}" theme="ace/theme/clouds" id="editor">{{currentCode}}</juicy-ace-editor>
         </paper-material>
       </div>
       <div class="output">
         <h3>Output</h3>
-        <div class="iframe-container"></div>
         <div class="layout horizontal justified">
           <div class="result start">
             <h4>Start Code</h4>
@@ -118,6 +122,7 @@
           </div>
         </div>
         <paper-button id="copy" raised>Copy for content editor</paper-button>
+        <div class="iframe-container layout horizontal"></div>
       </div>
     </div>
   </template>
@@ -127,7 +132,7 @@
       'use strict';
 
       Polymer({
-        is: 'programming-quiz',
+        is: 'iframe-quiz',
         attached: function() {
           var self = this;
           this.ace = this.querySelector('#editor');
@@ -178,11 +183,11 @@
           }
 
           function runStartCode() {
-            self.generateIframe('script', self.start.code, 'start');
+            self.generateIframe('html', self.start.code, 'start');
           }
 
           function runCorrectCode() {
-            self.generateIframe('script', self.correct.code, 'correct');
+            self.generateIframe('html', self.correct.code, 'correct');
           }
 
           this.runButton.onclick = function() {
@@ -221,7 +226,7 @@
             type: Object,
             notify: true,
             value: {
-              code: '// students see this when they start',
+              code: '<p>students see this when they start</p>',
               is_correct: 'TBD',
               test_feedback: 'TBD',
               test_comments: 'TBD',
@@ -232,7 +237,7 @@
             type: Object,
             notify: true,
             value: {
-              code: '// this code is correct',
+              code: '<p>this code is correct</p>',
               is_correct: 'TBD',
               test_feedback: 'TBD',
               test_comments: 'TBD',
@@ -248,16 +253,24 @@
             type: Number,
             observer: 'switchTabs',
             value: 0
+          },
+          mode: {
+            type: String,
+            notify: true,
+            value: 'html'
           }
         },
         switchTabs: function () {
           try {
             if (this.selected === 0) {
               this.currentCode = this.start.code;
+              this.set('mode', 'html');
             } else if (this.selected === 1) {
               this.currentCode = this.correct.code;
+              this.set('mode', 'html');
             } else if (this.selected === 2) {
               this.set('currentCode', this.gradingCode);
+              this.set('mode', 'javascript');
             }
           } catch (e) {
             return;
