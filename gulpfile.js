@@ -129,7 +129,9 @@ gulp.task('copy', function() {
     '!app/elements',
     '!app/bower_components',
     '!app/cache-config.json',
-    '!**/.DS_Store'
+    '!**/.DS_Store',
+    'app/bower_components/ace-builds/src-min-noconflict/mode-javascript.js',
+    'app/bower_components/ace-builds/src-min-noconflict/theme-clouds.js'
   ], {
     dot: true
   }).pipe(gulp.dest(dist()));
