@@ -19,9 +19,17 @@
         background-color: var(--primary-color);
         color: white;
       }
-      #run {
+
+      paper-button {
         margin-bottom: 16px;
+      }
+
+      #run {
         background-color: var(--accent-color);
+      }
+
+      #save {
+        background-color: var(--light-accent-color);
       }
 
       .is-correct {
@@ -56,8 +64,16 @@
     </style>
     <div class="layout horizontal justified">
       <div class="edit">
-        <paper-button raised id="run">Run!</paper-button>
-        <paper-checkbox id="js-grader">Use JS Grader</paper-checkbox>
+        <div class="layout horizontal justified">
+          <div>
+            <paper-button raised id="run">Run!</paper-button>
+            <paper-checkbox checked id="js-grader">Use JS Grader</paper-checkbox>
+          </div>
+          <div>
+            <span hidden>Saved!</span>
+            <paper-button raised id="save">Save</paper-button>
+          </div>
+        </div>
         <paper-material>
           <paper-tabs selected="{{selected}}">
             <paper-tab>Start Code</paper-tab>
@@ -69,9 +85,7 @@
       </div>
       <div class="output">
         <h3>Output</h3>
-        <div class="iframe-container">
-          
-        </div>
+        <div class="iframe-container"></div>
         <div class="layout horizontal justified">
           <div class="result start">
             <h4>Start Code</h4>
@@ -142,9 +156,9 @@
             if (!results) { throw new Error('Missing results object!'); }
 
             self.set(id + '.is_correct', results['is_correct']);
-            self.set(id + '.test_feedback', results['test_feedback']);
-            self.set(id + '.test_comments', results['test_comments']);
-            self.set(id + '.congrats', results['congrats']);
+            self.set(id + '.test_feedback', results['test_feedback'] || 'none');
+            self.set(id + '.test_comments', results['test_comments'] || 'none');
+            self.set(id + '.congrats', results['congrats'] || 'none');
           }
 
           function runStartCode() {
