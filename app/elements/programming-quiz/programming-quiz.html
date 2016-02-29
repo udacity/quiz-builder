@@ -68,19 +68,19 @@
           <div class="start">
             <h4>Start Code</h4>
             <div class="result start">
-              <p class="output-line">Correct: <span class="mono">{{sCorrect}}</span></p>
-              <p class="output-line">Feedback: <span class="mono">{{sFeedback}}</span></p>
-              <p class="output-line">Comment: <span class="mono">{{sComment}}</span></p>
-              <p class="output-line">Congrats: <span class="mono">{{sCongrats}}</span></p>
+              <p class="output-line">Correct: <span class="mono">{{start.correct}}</span></p>
+              <p class="output-line">Feedback: <span class="mono">{{start.feedback}}</span></p>
+              <p class="output-line">Comment: <span class="mono">{{start.comment}}</span></p>
+              <p class="output-line">Congrats: <span class="mono">{{start.congrats}}</span></p>
             </div>
           </div>
           <div class="correct">
             <h4>Correct Code</h4>
             <div class="result correct">
-              <p class="output-line">Correct: <span class="mono">{{cCorrect}}</span></p>
-              <p class="output-line">Feedback: <span class="mono">{{cFeedback}}</span></p>
-              <p class="output-line">Comment: <span class="mono">{{cComment}}</span></p>
-              <p class="output-line">Congrats: <span class="mono">{{cCongrats}}</span></p>
+              <p class="output-line">Correct: <span class="mono">{{correct.correct}}</span></p>
+              <p class="output-line">Feedback: <span class="mono">{{correct.feedback}}</span></p>
+              <p class="output-line">Comment: <span class="mono">{{correct.comment}}</span></p>
+              <p class="output-line">Congrats: <span class="mono">{{correct.congrats}}</span></p>
             </div>
           </div>
         </div>
@@ -98,14 +98,15 @@
           var self = this;
           this.ace = this.querySelector('#editor');
           // to match the starting tab
-          this.currentCode = this.startCode;
+          // this.currentCode = this.startCode;
+          this.currentCode = this.start.code;
 
           // update the model
           this.ace.addEventListener('change', function (e) {
             if (self.selected === 0) {
-              self.startCode = e.target.value;
+              self.start.code = e.target.value;
             } else if (self.selected === 1) {
-              self.correctCode = e.target.value;
+              self.correct.code = e.target.value;
             } else if (self.selected === 2) {
               this.gradingCode = e.target.value;
             }
@@ -113,27 +114,28 @@
 
           // for use with generating iframes
           this.iframeContainer = this.querySelector('.iframe-container');
-
-          window.performSubmission = function(results) {
-            console.log(results);
-          }
-
-          // this.generateIframe([{
-          //   type: 'script',
-          //   content: 'window.parent.performSubmission()'
-          // }]);
-
           this.runButton = this.querySelector('#run');
 
+          window.performSubmission = function(results, id) {
+            console.log(results, id);
+            if (!results) { throw new Error('Missing results object!'); }
+            console.log(self[id]);
+          }
+
+          function runStartCode() {
+            // change the scope of performSubmission so that it returns here
+            self.generateIframe('script', self.start.code, 'start');
+            // bonus points if you can return the results asynchronously
+          }
+
+          function runCorrectCode() {
+            // change the scope of performSubmission so that it returns here
+            self.generateIframe('script', self.correct.code, 'correct');
+          }
+
           this.runButton.onclick = function(argument) {
-            self.generateIframe([{
-              type: 'script',
-              content: self.startCode
-            }]);
-            self.generateIframe([{
-              type: 'script',
-              content: self.gradingCode
-            }]);
+            runStartCode();
+            runCorrectCode();
           }
         },
 
@@ -147,55 +149,27 @@
             type: String,
             notify: true
           },
-          startCode: {
-            type: String,
+          start: {
+            type: Object,
             notify: true,
-            value: '// students see this when they start'
+            value: {
+              code: '// students see this when they start',
+              correct: 'TBD',
+              feedback: 'TBD',
+              comment: 'TBD',
+              congrats: 'TBD'
+            }
           },
-          sCorrect: {
-            type: String,
+          correct: {
+            type: Object,
             notify: true,
-            value: 'TBD'
-          },
-          sFeedback: {
-            type: String,
-            notify: true,
-            value: 'TBD'
-          },
-          sComment: {
-            type: String,
-            notify: true,
-            value: 'TBD'
-          },
-          sCongrats: {
-            type: String,
-            notify: true,
-            value: 'TBD'
-          },
-          cCorrect: {
-            type: String,
-            notify: true,
-            value: 'TBD'
-          },
-          cFeedback: {
-            type: String,
-            notify: true,
-            value: 'TBD'
-          },
-          cComment: {
-            type: String,
-            notify: true,
-            value: 'TBD'
-          },
-          cCongrats: {
-            type: String,
-            notify: true,
-            value: 'TBD'
-          },
-          correctCode: {
-            type: String,
-            notify: true,
-            value: '// this code is correct'
+            value: {
+              code: '// this code is correct',
+              correct: 'TBD',
+              feedback: 'TBD',
+              comment: 'TBD',
+              congrats: 'TBD'
+            }
           },
           gradingCode: {
             type: String,
@@ -211,40 +185,38 @@
         switchTabs: function () {
           try {
             if (this.selected === 0) {
-              this.currentCode = this.startCode;
+              this.currentCode = this.start.code;
             } else if (this.selected === 1) {
-              this.currentCode = this.correctCode;
+              this.currentCode = this.correct.code;
             } else if (this.selected === 2) {
               this.currentCode = this.gradingCode;
             }
           } catch (e) {
-            console.log(e);
+            console.error(e);
             return;
           }
         },
-        generateIframe: function(args) {
-          this.iframeContainer.innerHTML = '';
+        generateIframe: function(type, content, id) {
+          // TODO: clear it or build a new one?
+          // this.iframeContainer.innerHTML = '';
+          var iFrameContent = '<html><head></head><body><script>var performSubmission = function(o){ window.parent.performSubmission(o, \'' + id + '\'); };<\/script>';
+          switch (type) {
+            case 'script':
+              iFrameContent = iFrameContent + '<script>' + content + '<\/script>';
+              break;
+            case 'html':
+              iFrameContent = iFrameContent + content;
+              break;
+            default:
+              iFrameContent = iFrameContent + content;
+              break;
+          }
 
-          var content = '';
-
-          content = '<script>performSubmission = window.parent.performSubmission\<\/script>';
-          args.forEach(function(arg) {
-            switch (arg.type) {
-              case 'script':
-                content = content + '<script>' + arg.content + '\<\/script>';
-                break;
-              case 'html':
-                content = content + arg.content;
-                break;
-              default:
-                content = content + arg.content;
-                break;
-            }
-          });
+          iFrameContent = iFrameContent + '<script>' + this.gradingCode + '<\/script><\/body>';
 
           var iframe = document.createElement('iframe');
           iframe.setAttribute('frameborder', 0);
-          iframe.srcdoc = content;
+          iframe.srcdoc = iFrameContent;
           this.iframeContainer.appendChild(iframe);
         }
       });
