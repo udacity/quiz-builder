@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/juicy-ace-editor/juicy-ace-editor.html">
 
 <dom-module id="programming-quiz">
   <template>
@@ -11,10 +12,12 @@
         max-width: 100%;
         border: 1px solid #ddd;
       }
+
       paper-material {
         padding: 16px 16px;
         background-color: white;
       }
+
       paper-tabs {
         background-color: var(--primary-color);
         color: white;
@@ -32,6 +35,14 @@
         background-color: var(--light-accent-color);
       }
 
+      #copy {
+        display: block;
+        width: 18em;
+        margin-left: auto;
+        margin-right: auto;
+        background-color: var(--light-accent-color);
+      }
+
       .is-correct {
         color: green;
       }
@@ -44,19 +55,24 @@
         width: 60%;
         margin-right: 8px;
       }
+
       .output {
         width: 40%;
         margin-left: 8px;
       }
+
       .iframe-container {
         height: 0px;
       }
+
       .result {
         width: 50%;
       }
+
       .output-line {
         /* something? */
       }
+
       .mono {
         font-family: monospace;
         font-weight: bold;
@@ -102,6 +118,7 @@
             <p class="output-line">Congrats Message</p><p class="mono">{{correct.congrats}}</p>
           </div>
         </div>
+        <paper-button id="copy" raised>Copy for content editor</paper-button>
       </div>
     </div>
   </template>
@@ -169,18 +186,34 @@
             self.generateIframe('script', self.correct.code, 'correct');
           }
 
-          this.runButton.onclick = function(argument) {
+          this.runButton.onclick = function() {
             runStartCode();
             runCorrectCode();
-          }
+          };
+
+          get('http://udacity.github.io/js-grader/grader.js')
+          .then(function(res) {
+            self.jsGrader = res;
+          });
+
+          // copying to clipboard
+          new Clipboard('#copy', {
+            text: function(trigger) {
+              var start = 'function performTesting() { return {result: \'noop\'}; }';
+              var gradingCode = self.gradingCode;
+              
+              var cString = '';
+              if (self.useJSGrader.checked) {
+                cString = start + self.jsGrader + self.gradingCode;
+              } else {
+                cString = start + self.gradingCode;
+              }
+              return cString;
+            }
+          });
         },
 
         properties: {
-          selected: {
-            type: Number,
-            notify: true,
-            value: 0
-          },
           currentCode: {
             type: String,
             notify: true
@@ -242,7 +275,7 @@
           var iFrameMiddle = '</head><body>';
           var iFrameEnd = '</body></html>';
 
-          var iFrameHead = '<script src="../bower_components/jquery/dist/jquery.min.js"><\/script><script>var performSubmission = function(o){ window.parent.performSubmission(o, \'' + id + '\'); };<\/script>';
+          var iFrameHead = '<script src="bower_components/jquery/dist/jquery.min.js"><\/script><script>var performSubmission = function(o){ window.parent.performSubmission(o, \'' + id + '\'); };<\/script>';
 
           var iFrameBody = '';
 
@@ -259,7 +292,7 @@
           }
 
           if (this.useJSGrader.checked) {
-            iFrameHead = iFrameHead + '<script src="http://udacity.github.io/js-grader/grader.js"><\/script>';
+            iFrameHead = iFrameHead + '<script>' + this.jsGrader + '<\/script>';
           }
 
           iFrameBody = iFrameBody + '<script>' + this.gradingCode + '<\/script>';

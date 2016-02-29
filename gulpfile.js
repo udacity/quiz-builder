@@ -25,7 +25,7 @@ var packageJson = require('./package.json');
 var crypto = require('crypto');
 var ensureFiles = require('./tasks/ensure-files.js');
 
-// var ghPages = require('gulp-gh-pages');
+var ghPages = require('gulp-gh-pages');
 
 var AUTOPREFIXER_BROWSERS = [
   'ie >= 10',
@@ -249,7 +249,7 @@ gulp.task('serve:dist', ['default'], function() {
   browserSync({
     port: 5101,
     notify: false,
-    logPrefix: 'PSK',
+    logPrefix: 'QB',
     snippetOptions: {
       rule: {
         match: '<span id="browser-sync-binding"></span>',
