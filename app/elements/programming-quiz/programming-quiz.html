@@ -10,7 +10,6 @@
         height: 500px;
         max-width: 100%;
         border: 1px solid #ddd;
-        /*margin: 16px;*/
       }
       paper-material {
         padding: 16px 16px;
@@ -20,12 +19,8 @@
         background-color: var(--primary-color);
         color: white;
       }
-      paper-button {
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
+      #run {
         margin-bottom: 16px;
-        width: 5em;
         background-color: var(--accent-color);
       }
 
@@ -52,7 +47,7 @@
         width: 50%;
       }
       .output-line {
-        /* something */
+        /* something? */
       }
       .mono {
         font-family: monospace;
@@ -62,6 +57,7 @@
     <div class="layout horizontal justified">
       <div class="edit">
         <paper-button raised id="run">Run!</paper-button>
+        <paper-checkbox id="js-grader">Use JS Grader</paper-checkbox>
         <paper-material>
           <paper-tabs selected="{{selected}}">
             <paper-tab>Start Code</paper-tab>
@@ -115,7 +111,7 @@
             } else if (self.selected === 1) {
               self.correct.code = e.target.value;
             } else if (self.selected === 2) {
-              this.gradingCode = e.target.value;
+              self.set('gradingCode', e.target.value);
             }
           });
 
@@ -140,6 +136,7 @@
           // for use with generating iframes
           this.iframeContainer = this.querySelector('.iframe-container');
           this.runButton = this.querySelector('#run');
+          this.useJSGrader = this.querySelector('#js-grader');
 
           window.performSubmission = function(results, id) {
             if (!results) { throw new Error('Missing results object!'); }
@@ -214,7 +211,7 @@
             } else if (this.selected === 1) {
               this.currentCode = this.correct.code;
             } else if (this.selected === 2) {
-              this.currentCode = this.gradingCode;
+              this.set('currentCode', this.gradingCode);
             }
           } catch (e) {
             return;
@@ -224,20 +221,35 @@
           if (this.iframeContainer.children.length >= 2) {
             this.iframeContainer.innerHTML = '';
           }
-          var iFrameContent = '<html><head><script src="../bower_components/jquery/dist/jquery.min.js"><\/script><script>var performSubmission = function(o){ window.parent.performSubmission(o, \'' + id + '\'); };<\/script>' + '</head><body>';
+
+          var iFrameContent = '';
+
+          var iFrameStart = '<html><head>';
+          var iFrameMiddle = '</head><body>';
+          var iFrameEnd = '</body></html>';
+
+          var iFrameHead = '<script src="../bower_components/jquery/dist/jquery.min.js"><\/script><script>var performSubmission = function(o){ window.parent.performSubmission(o, \'' + id + '\'); };<\/script>';
+
+          var iFrameBody = '';
+
           switch (type) {
             case 'script':
-              iFrameContent = iFrameContent + '<script>' + content + '<\/script>';
+              iFrameBody = '<script>' + content + '<\/script>';
               break;
             case 'html':
-              iFrameContent = iFrameContent + content;
+              iFrameBody = content;
               break;
             default:
-              iFrameContent = iFrameContent + content;
+              iFrameBody = content;
               break;
           }
 
-          iFrameContent = iFrameContent + '<script>' + this.gradingCode + '<\/script><\/body>';
+          if (this.useJSGrader.checked) {
+            iFrameHead = iFrameHead + '<script src="http://udacity.github.io/js-grader/grader.js"><\/script>';
+          }
+
+          iFrameBody = iFrameBody + '<script>' + this.gradingCode + '<\/script>';
+          iFrameContent = iFrameStart + iFrameHead + iFrameMiddle + iFrameBody + iFrameEnd;
 
           var iframe = document.createElement('iframe');
           iframe.setAttribute('frameborder', 0);
