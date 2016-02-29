@@ -1,0 +1,1 @@
+!function(e){"use strict";var n=e.querySelector("#app");n.baseUrl="/",""===window.location.port&&(n.baseUrl="/quiz-builder/"),n.addEventListener("dom-change",function(){}),window.addEventListener("WebComponentsReady",function(){}),n.closeDrawer=function(){n.$.paperDrawerPanel.closeDrawer()}}(document);
