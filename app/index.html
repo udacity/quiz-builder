@@ -73,10 +73,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <div class="content">
       <iron-pages attr-for-selected="data-route" selected="{{route}}">
         <section data-route="home">
-          <paper-material elevation="1">
-            <a href="{{baseUrl}}programming-quiz">Programming Quiz</a>
-            <a href="{{baseUrl}}iframe-quiz">iFrame Quiz</a>
-          </paper-material>
+          <home-page />
         </section>
         <section data-route="programming-quiz">
           <programming-quiz></programming-quiz>
