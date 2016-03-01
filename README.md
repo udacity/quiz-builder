@@ -1,3 +1,12 @@
+# Quiz Builder
+> Simulating the Udacity classroom and making it easy to test
+
+[Live](http://udacity.github.io/quiz-builder)
+
+Want to contribute? Follow the instructions below to get up and running.
+
+---
+
 ![](https://cloud.githubusercontent.com/assets/110953/7877439/6a69d03e-0590-11e5-9fac-c614246606de.png)
 ## Polymer Starter Kit
 

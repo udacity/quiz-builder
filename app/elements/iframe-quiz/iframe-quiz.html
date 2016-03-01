@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../behaviors/quiz-manager.html">
 
 <dom-module id="iframe-quiz">
   <template>
@@ -89,10 +90,6 @@
             <paper-button raised id="run">Run!</paper-button>
             <paper-checkbox checked id="js-grader">Use JS Grader</paper-checkbox>
           </div>
-          <div>
-            <span hidden>Saved!</span>
-            <paper-button raised id="save">Save</paper-button>
-          </div>
         </div>
         <paper-material>
           <paper-tabs selected="{{selected}}">
@@ -133,131 +130,11 @@
 
       Polymer({
         is: 'iframe-quiz',
-        attached: function() {
-          var self = this;
-          this.ace = this.querySelector('#editor');
-          // to match the starting tab
-          this.currentCode = this.start.code;
-
-          // update the model
-          this.ace.addEventListener('change', function (e) {
-            if (self.selected === 0) {
-              self.start.code = e.target.value;
-            } else if (self.selected === 1) {
-              self.correct.code = e.target.value;
-            } else if (self.selected === 2) {
-              self.set('gradingCode', e.target.value);
-            }
-          });
-
-          // keyboard shortcuts
-          var cmdDown = false;
-          window.addEventListener('keydown', function(e) {
-            if (e.keyCode === 91 || e.keyCode === 93 || e.keyCode === 17 || e.keyCode === 224) {
-              cmdDown = true;
-            }
-
-            if (e.keyCode === 13 && cmdDown) {
-              self.runButton.onclick();
-            }
-          });
-
-          window.addEventListener('keyup', function(e) {
-            if (e.keyCode === 91 || e.keyCode === 93 || e.keyCode === 17 || e.keyCode === 224) {
-              cmdDown = false;
-            }
-          });
-
-          // for use with generating iframes
-          this.iframeContainer = this.querySelector('.iframe-container');
-          this.runButton = this.querySelector('#run');
-          this.useJSGrader = this.querySelector('#js-grader');
-
-          window.performSubmission = function(results, id) {
-            if (!results) { throw new Error('Missing results object!'); }
-
-            self.set(id + '.is_correct', results['is_correct']);
-            self.set(id + '.test_feedback', results['test_feedback'] || 'none');
-            self.set(id + '.test_comments', results['test_comments'] || 'none');
-            self.set(id + '.congrats', results['congrats'] || 'none');
-          }
-
-          function runStartCode() {
-            self.generateIframe('html', self.start.code, 'start');
-          }
-
-          function runCorrectCode() {
-            self.generateIframe('html', self.correct.code, 'correct');
-          }
-
-          this.runButton.onclick = function() {
-            runStartCode();
-            runCorrectCode();
-          };
-
-          get('http://udacity.github.io/js-grader/grader.js')
-          .then(function(res) {
-            self.jsGrader = res;
-          });
-
-          // copying to clipboard
-          new Clipboard('#copy', {
-            text: function(trigger) {
-              var start = 'function performTesting() { return {result: \'noop\'}; }';
-              var gradingCode = self.gradingCode;
-              
-              var cString = '';
-              if (self.useJSGrader.checked) {
-                cString = start + self.jsGrader + self.gradingCode;
-              } else {
-                cString = start + self.gradingCode;
-              }
-              return cString;
-            }
-          });
-        },
-
+        behaviors: [QuizManager],
         properties: {
-          currentCode: {
+          type: {
             type: String,
-            notify: true
-          },
-          start: {
-            type: Object,
-            notify: true,
-            value: {
-              code: '<p>students see this when they start</p>',
-              is_correct: 'TBD',
-              test_feedback: 'TBD',
-              test_comments: 'TBD',
-              congrats: 'TBD'
-            }
-          },
-          correct: {
-            type: Object,
-            notify: true,
-            value: {
-              code: '<p>this code is correct</p>',
-              is_correct: 'TBD',
-              test_feedback: 'TBD',
-              test_comments: 'TBD',
-              congrats: 'TBD'
-            }
-          },
-          gradingCode: {
-            type: String,
-            notify: true,
-            value: '// use this method to register student results!\nperformSubmission({\n\tis_correct: false,\n\ttest_feedback: \'think about this to do better\',\n\ttest_comments: \'things that went well\',\n\tcongrats: \'nice job!\'\n});'
-          },
-          selected: {
-            type: Number,
-            observer: 'switchTabs',
-            value: 0
-          },
-          mode: {
-            type: String,
-            notify: true,
-            value: 'html'
+            value: 'iframe'
           }
         },
         switchTabs: function () {
@@ -314,15 +191,6 @@
           iframe.setAttribute('frameborder', 0);
           iframe.srcdoc = iFrameContent;
           this.iframeContainer.appendChild(iframe);
-        },
-        formatCorrect: function(isCorrect) {
-          if (isCorrect === true) {
-            return 'is-correct';
-          } else if (isCorrect === false) {
-            return 'is-incorrect';
-          } else {
-            return '';
-          }
         }
       });
     })();
