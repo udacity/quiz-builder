@@ -39,17 +39,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       app.route = 'home';
     });
 
-    page('/programming-quiz', function() {
-      app.route = 'programming-quiz';
-    });
-
-    page('/iframe-quiz', function() {
-      app.route = 'iframe-quiz';
-    });
-
-    page('/users/:name', function(data) {
-      app.route = 'user-info';
-      app.params = data.params;
+    page('/quiz/:type', next, function(ctx) {
+      app.route = 'quiz';
+      app.params = ctx.params;
     });
 
     page('/contact', function() {

@@ -80,11 +80,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <section data-route="home">
           <home-page />
         </section>
-        <section data-route="programming-quiz">
-          <programming-quiz />
-        </section>
-        <section data-route="iframe-quiz">
-          <iframe-quiz />
+        <section data-route="quiz">
+          <quiz-display quiz-type={{params.type}} />
         </section>
       </iron-pages>
     </div>

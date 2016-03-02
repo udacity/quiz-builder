@@ -36,8 +36,8 @@
       <paper-material elevation="1">
         <h3>New Quiz</h3>
         <div>
-          <a href="{{baseUrl}}programming-quiz"><paper-button raised>Just JavaScript</paper-button></a>
-          <a href="{{baseUrl}}iframe-quiz"><paper-button raised>iFrame</paper-button></a>
+          <a href="{{baseUrl}}quiz/js"><paper-button raised>Just JavaScript</paper-button></a>
+          <a href="{{baseUrl}}quiz/iframe"><paper-button raised>iFrame</paper-button></a>
         </div>
       </paper-material>
 
@@ -58,7 +58,7 @@
       Polymer({
         is: 'home-page',
         attached: function() {
-          console.log(model.quizSelectorAll('js'));
+          // console.log(model.quizSelectorAll('js'));
         },
 
         properties: {

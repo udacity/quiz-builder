@@ -1,0 +1,116 @@
+<script>
+  var model = (function() {
+    var Quizzes = {
+      initial: {
+        js: [{
+          name: 'init js',
+          view: 'programming',
+          start: '// students see this when they start',
+          correct: '// this code is correct',
+          grading: '// use this method to register student results!\nperformSubmission({\n\tis_correct: false,\n\ttest_feedback: \'think about this to do better\',\n\ttest_comments: \'things that went well\',\n\tcongrats: \'nice job!\'\n});',
+          useJSGrader: true
+        }],
+        iframe: [{
+          name: 'init iframe',
+          view: 'iframe',
+          start: 'test init start',
+          correct: 'test init correct',
+          grading: 'test init grading',
+          useJSGrader: true
+        }]
+      },
+      sample: {
+        js: [{
+          name: 'sample js',
+          view: 'programming',
+          start: 'test sample start',
+          correct: 'test sample correct',
+          grading: 'test sample grading',
+          useJSGrader: true
+        }],
+        iframe: [{
+          name: 'sample iframe',
+          view: 'programming',
+          start: 'test sample start',
+          correct: 'test sample correct',
+          grading: 'test sample grading',
+          useJSGrader: true
+        }]
+      },
+      // saved: {
+      //   js: [],
+      //   iframe: []
+      // },
+      all: {}
+    }
+
+    function Model() {
+      function set(key, value) {
+        if (typeof value !== 'string') {
+          try {
+            value = JSON.stringify(value);
+          } catch (e) {
+            throw e;
+          }
+        }
+        localStorage.setItem(key, value);
+      }
+
+      function get(key) {
+        var value = localStorage.getItem(key);
+        try {
+          value = JSON.parse(value);
+        } catch (e) {
+          // do nothing because it's not an object
+        }
+        return value;
+      }
+
+      // get saved quizzes
+      // ['js', 'iframe'].forEach(function(view) {
+      //   var savedQuizzes = get('savedQuizzes-' + view);
+      //   if (savedQuizzes) {
+      //     savedQuizzes.forEach(function(quiz) {
+      //       Quizzes.saved[view].push(quiz);
+      //     });
+      //   }
+      // });
+
+      var quizIndex = 1;
+      objectLoop(Quizzes.initial, function(key, value) {
+        value.forEach(function(v) {
+          v.id = quizIndex;
+          Quizzes.all[quizIndex] = v;
+          quizIndex += 1;
+        })
+      });
+
+      objectLoop(Quizzes.sample, function(key, value) {
+        value.forEach(function(v) {
+          v.id = quizIndex;
+          Quizzes.all[quizIndex] = v;
+          quizIndex += 1;
+        })
+      });
+
+      // var currentQuiz = {
+      //   js: get('currentQuiz-js') || Quizzes.initial.js,
+      //   iframe: get('currentQuiz-iframe') || Quizzes.initial.iframe
+      // };
+
+      // category is optional
+      this.quizSelectorAll = function(type, category) {
+        // while there's no saving
+        category = category || 'sample';
+        return Quizzes[category][type];
+      }
+
+      this.quizSelector = function(id) {
+        return Quizzes.all[id];
+      };
+    }
+
+    // return new Model();
+    return Quizzes;
+  })();
+</script>
