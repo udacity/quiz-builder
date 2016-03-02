@@ -15121,17 +15121,9 @@ module.exports = Array.isArray || function (arr) {
       app.route = 'home';
     });
 
-    page('/programming-quiz', function() {
-      app.route = 'programming-quiz';
-    });
-
-    page('/iframe-quiz', function() {
-      app.route = 'iframe-quiz';
-    });
-
-    page('/users/:name', function(data) {
-      app.route = 'user-info';
-      app.params = data.params;
+    page('/quiz/:type', next, function(ctx) {
+      app.route = 'quiz';
+      app.params = ctx.params;
     });
 
     page('/contact', function() {
@@ -15358,7 +15350,7 @@ module.exports = Array.isArray || function (arr) {
 
   /* Height of the scroll area */
   .content {
-    height: 900px;
+    height: 100%;
   }
 
   section[data-route="home"] paper-material {
@@ -15524,8 +15516,8 @@ module.exports = Array.isArray || function (arr) {
       <paper-material elevation="1">
         <h3>New Quiz</h3>
         <div>
-          <a href="{{baseUrl}}programming-quiz"><paper-button raised="">Just JavaScript</paper-button></a>
-          <a href="{{baseUrl}}iframe-quiz"><paper-button raised="">iFrame</paper-button></a>
+          <a href="{{baseUrl}}quiz/js"><paper-button raised="">Just JavaScript</paper-button></a>
+          <a href="{{baseUrl}}quiz/iframe"><paper-button raised="">iFrame</paper-button></a>
         </div>
       </paper-material>
 
@@ -15546,24 +15538,321 @@ module.exports = Array.isArray || function (arr) {
       Polymer({
         is: 'home-page',
         attached: function() {
+          // console.log(model.quizSelectorAll('js'));
         },
 
-        properties: {}
+        properties: {
+
+        }
       });
     })();
   </script>
 </dom-module>
 <script>
-  var ExampleQuizzes = [
-    {
-      name: 'your first JS quiz',
-      type: 'programming',
-      start: '// some start code',
-      correct: '// some correct code',
-      grading: 'performSubmission();',
-      useJSGrader: true
+  var model = (function() {
+    var Quizzes = {
+      initial: {
+        js: [{
+          name: 'init js',
+          view: 'programming',
+          start: '// students see this when they start',
+          correct: '// this code is correct',
+          grading: '// use this method to register student results!\nperformSubmission({\n\tis_correct: false,\n\ttest_feedback: \'think about this to do better\',\n\ttest_comments: \'things that went well\',\n\tcongrats: \'nice job!\'\n});',
+          useJSGrader: true
+        }],
+        iframe: [{
+          name: 'init iframe',
+          view: 'iframe',
+          start: 'test init start',
+          correct: 'test init correct',
+          grading: 'test init grading',
+          useJSGrader: true
+        }]
+      },
+      sample: {
+        js: [{
+          name: 'sample js',
+          view: 'programming',
+          start: 'test sample start',
+          correct: 'test sample correct',
+          grading: 'test sample grading',
+          useJSGrader: true
+        }],
+        iframe: [{
+          name: 'sample iframe',
+          view: 'programming',
+          start: 'test sample start',
+          correct: 'test sample correct',
+          grading: 'test sample grading',
+          useJSGrader: true
+        }]
+      },
+      // saved: {
+      //   js: [],
+      //   iframe: []
+      // },
+      all: {}
     }
-  ]
+
+    function Model() {
+      function set(key, value) {
+        if (typeof value !== 'string') {
+          try {
+            value = JSON.stringify(value);
+          } catch (e) {
+            throw e;
+          }
+        }
+        localStorage.setItem(key, value);
+      }
+
+      function get(key) {
+        var value = localStorage.getItem(key);
+        try {
+          value = JSON.parse(value);
+        } catch (e) {
+          // do nothing because it's not an object
+        }
+        return value;
+      }
+
+      // get saved quizzes
+      // ['js', 'iframe'].forEach(function(view) {
+      //   var savedQuizzes = get('savedQuizzes-' + view);
+      //   if (savedQuizzes) {
+      //     savedQuizzes.forEach(function(quiz) {
+      //       Quizzes.saved[view].push(quiz);
+      //     });
+      //   }
+      // });
+
+      var quizIndex = 1;
+      objectLoop(Quizzes.initial, function(key, value) {
+        value.forEach(function(v) {
+          v.id = quizIndex;
+          Quizzes.all[quizIndex] = v;
+          quizIndex += 1;
+        })
+      });
+
+      objectLoop(Quizzes.sample, function(key, value) {
+        value.forEach(function(v) {
+          v.id = quizIndex;
+          Quizzes.all[quizIndex] = v;
+          quizIndex += 1;
+        })
+      });
+
+      // var currentQuiz = {
+      //   js: get('currentQuiz-js') || Quizzes.initial.js,
+      //   iframe: get('currentQuiz-iframe') || Quizzes.initial.iframe
+      // };
+
+      // category is optional
+      this.quizSelectorAll = function(type, category) {
+        // while there's no saving
+        category = category || 'sample';
+        return Quizzes[category][type];
+      }
+
+      this.quizSelector = function(id) {
+        return Quizzes.all[id];
+      };
+    }
+
+    // return new Model();
+    return Quizzes;
+  })();
+</script><script>
+  QuizManager = {
+    attached: function() {
+      var self = this;
+
+      // get the quizId
+      // set the start, correct, grading info
+      this.ace = this.querySelector('#editor');
+      // to match the starting tab
+      this.currentCode = this.start.code;
+
+      // update the model
+      this.ace.addEventListener('change', function (e) {
+        if (self.selected === 0) {
+          self.set('start.code', e.target.value);
+          // self.start.code = e.target.value;
+        } else if (self.selected === 1) {
+          self.set('correct.code', e.target.value);
+          // self.correct.code = e.target.value;
+        } else if (self.selected === 2) {
+          self.set('grading.code', e.target.value);
+          // self.grading.code = e.target.value;
+        }
+      });
+
+      // keyboard shortcuts
+      var cmdDown = false;
+      window.addEventListener('keydown', function(e) {
+        if (e.keyCode === 91 || e.keyCode === 93 || e.keyCode === 17 || e.keyCode === 224) {
+          cmdDown = true;
+        }
+
+        if (e.keyCode === 13 && cmdDown) {
+          self.runButton.onclick();
+        }
+      });
+
+      window.addEventListener('keyup', function(e) {
+        if (e.keyCode === 91 || e.keyCode === 93 || e.keyCode === 17 || e.keyCode === 224) {
+          cmdDown = false;
+        }
+      });
+
+      // for use with generating iframes
+      this.iframeContainer = this.querySelector('.iframe-container');
+      this.runButton = this.querySelector('#run');
+      this.useJSGrader = this.querySelector('#js-grader');
+
+      window.performSubmission = function(results, id) {
+        if (!results) { throw new Error('Missing results object!'); }
+
+        self.set(id + '.is_correct', results['is_correct']);
+        self.set(id + '.test_feedback', results['test_feedback'] || 'none');
+        self.set(id + '.test_comments', results['test_comments'] || 'none');
+        self.set(id + '.congrats', results['congrats'] || 'none');
+      }
+
+      function runStartCode() {
+        self.generateIframe(self.quizType, self.start.code, 'start');
+      }
+
+      function runCorrectCode() {
+        self.generateIframe(self.quizType, self.correct.code, 'correct');
+      }
+
+      this.runButton.onclick = function() {
+        runStartCode();
+        runCorrectCode();
+      };
+
+      get('http://udacity.github.io/js-grader/grader.js')
+      .then(function(res) {
+        self.jsGrader = res;
+      });
+
+      // copying to clipboard
+      new Clipboard('#copy', {
+        text: function(trigger) {
+          var start = 'function performTesting() { return {result: \'noop\'}; }';
+          var gradingCode = self.grading.code;
+          
+          var cString = '';
+          if (self.useJSGrader.checked) {
+            cString = start + self.jsGrader + gradingCode;
+          } else {
+            cString = start + gradingCode;
+          }
+          return cString;
+        }
+      });
+    },
+    properties: {
+      quizType: {
+        type: String,
+        notify: true,
+        observer: 'reactToType'
+      },
+      quizId: {
+        type: String,
+        notify: true,
+        value: ''
+      },
+      currentCode: {
+        type: String,
+        notify: true
+      },
+      start: {
+        type: Object,
+        notify: true,
+        value: {
+          code: 'default start',
+          is_correct: 'TBD',
+          test_feedback: 'TBD',
+          test_comments: 'TBD',
+          congrats: 'TBD'
+        }
+      },
+      correct: {
+        type: Object,
+        notify: true,
+        value: {
+          code: 'default correct',
+          is_correct: 'TBD',
+          test_feedback: 'TBD',
+          test_comments: 'TBD',
+          congrats: 'TBD'
+        }
+      },
+      grading: {
+        type: Object,
+        notify: true,
+        value: {
+          code: 'default grading'
+        }
+      },
+      selected: {
+        type: Number,
+        observer: 'switchTabs',
+        value: 0
+      },
+      mode: {
+        type: String,
+        notify: true,
+        value: 'html'
+      }
+    },
+    reactToType: function(quizType) {
+      var self = this;
+      switch (self.quizType) {
+        case 'js':
+          self.set('editorType', 'JS');
+          self.set('start.code', model.initial.js[0].start);
+          self.set('correct.code', model.initial.js[0].correct);
+          self.set('grading.code', model.initial.js[0].grading);
+          break;
+        case 'iframe':
+          self.set('editorType', 'HTML');
+          self.set('start.code', model.initial.iframe[0].start);
+          self.set('correct.code', model.initial.iframe[0].correct);
+          self.set('grading.code', model.initial.iframe[0].grading);
+          break;
+        default:
+          self.set('editorType', 'Code');
+          break;
+      }
+      self.switchTabs();
+    },
+    switchTabs: function () {
+      try {
+        if (this.selected === 0) {
+          this.currentCode = this.start.code;
+        } else if (this.selected === 1) {
+          this.currentCode = this.correct.code;
+        } else if (this.selected === 2) {
+          this.set('currentCode', this.grading.code);
+        }
+      } catch (e) {
+        return;
+      }
+    },
+    formatCorrect: function(isCorrect) {
+      if (isCorrect === true) {
+        return 'is-correct';
+      } else if (isCorrect === false) {
+        return 'is-incorrect';
+      } else {
+        return '';
+      }
+    }
+  };
 </script><dom-module id="programming-quiz" assetpath="programming-quiz/">
   <template>
     <style include="shared-styles">
@@ -15648,10 +15937,6 @@ module.exports = Array.isArray || function (arr) {
             <paper-button raised="" id="run">Run!</paper-button>
             <paper-checkbox checked="" id="js-grader">Use JS Grader</paper-checkbox>
           </div>
-          <div>
-            <span hidden="">Saved!</span>
-            <paper-button raised="" id="save">Save</paper-button>
-          </div>
         </div>
         <paper-material>
           <paper-tabs selected="{{selected}}">
@@ -15692,126 +15977,11 @@ module.exports = Array.isArray || function (arr) {
 
       Polymer({
         is: 'programming-quiz',
-        attached: function() {
-          var self = this;
-          this.ace = this.querySelector('#editor');
-          // to match the starting tab
-          this.currentCode = this.start.code;
-
-          // update the model
-          this.ace.addEventListener('change', function (e) {
-            if (self.selected === 0) {
-              self.start.code = e.target.value;
-            } else if (self.selected === 1) {
-              self.correct.code = e.target.value;
-            } else if (self.selected === 2) {
-              self.set('gradingCode', e.target.value);
-            }
-          });
-
-          // keyboard shortcuts
-          var cmdDown = false;
-          window.addEventListener('keydown', function(e) {
-            if (e.keyCode === 91 || e.keyCode === 93 || e.keyCode === 17 || e.keyCode === 224) {
-              cmdDown = true;
-            }
-
-            if (e.keyCode === 13 && cmdDown) {
-              self.runButton.onclick();
-            }
-          });
-
-          window.addEventListener('keyup', function(e) {
-            if (e.keyCode === 91 || e.keyCode === 93 || e.keyCode === 17 || e.keyCode === 224) {
-              cmdDown = false;
-            }
-          });
-
-          // for use with generating iframes
-          this.iframeContainer = this.querySelector('.iframe-container');
-          this.runButton = this.querySelector('#run');
-          this.useJSGrader = this.querySelector('#js-grader');
-
-          window.performSubmission = function(results, id) {
-            if (!results) { throw new Error('Missing results object!'); }
-
-            self.set(id + '.is_correct', results['is_correct']);
-            self.set(id + '.test_feedback', results['test_feedback'] || 'none');
-            self.set(id + '.test_comments', results['test_comments'] || 'none');
-            self.set(id + '.congrats', results['congrats'] || 'none');
-          }
-
-          function runStartCode() {
-            self.generateIframe('script', self.start.code, 'start');
-          }
-
-          function runCorrectCode() {
-            self.generateIframe('script', self.correct.code, 'correct');
-          }
-
-          this.runButton.onclick = function() {
-            runStartCode();
-            runCorrectCode();
-          };
-
-          get('http://udacity.github.io/js-grader/grader.js')
-          .then(function(res) {
-            self.jsGrader = res;
-          });
-
-          // copying to clipboard
-          new Clipboard('#copy', {
-            text: function(trigger) {
-              var start = 'function performTesting() { return {result: \'noop\'}; }';
-              var gradingCode = self.gradingCode;
-              
-              var cString = '';
-              if (self.useJSGrader.checked) {
-                cString = start + self.jsGrader + self.gradingCode;
-              } else {
-                cString = start + self.gradingCode;
-              }
-              return cString;
-            }
-          });
-        },
-
+        behaviors: [QuizManager],
         properties: {
-          currentCode: {
+          type: {
             type: String,
-            notify: true
-          },
-          start: {
-            type: Object,
-            notify: true,
-            value: {
-              code: '// students see this when they start',
-              is_correct: 'TBD',
-              test_feedback: 'TBD',
-              test_comments: 'TBD',
-              congrats: 'TBD'
-            }
-          },
-          correct: {
-            type: Object,
-            notify: true,
-            value: {
-              code: '// this code is correct',
-              is_correct: 'TBD',
-              test_feedback: 'TBD',
-              test_comments: 'TBD',
-              congrats: 'TBD'
-            }
-          },
-          gradingCode: {
-            type: String,
-            notify: true,
-            value: '// use this method to register student results!\nperformSubmission({\n\tis_correct: false,\n\ttest_feedback: \'think about this to do better\',\n\ttest_comments: \'things that went well\',\n\tcongrats: \'nice job!\'\n});'
-          },
-          selected: {
-            type: Number,
-            observer: 'switchTabs',
-            value: 0
+            value: 'js'
           }
         },
         switchTabs: function () {
@@ -15865,15 +16035,184 @@ module.exports = Array.isArray || function (arr) {
           iframe.setAttribute('frameborder', 0);
           iframe.srcdoc = iFrameContent;
           this.iframeContainer.appendChild(iframe);
-        },
-        formatCorrect: function(isCorrect) {
-          if (isCorrect === true) {
-            return 'is-correct';
-          } else if (isCorrect === false) {
-            return 'is-incorrect';
-          } else {
-            return '';
+        }
+      });
+    })();
+  </script>
+</dom-module>
+<dom-module id="quiz-display" assetpath="quiz-display/">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+      }
+      juicy-ace-editor {
+        height: 500px;
+        max-width: 100%;
+        border: 1px solid #ddd;
+      }
+
+      paper-material {
+        padding: 16px 16px;
+        background-color: white;
+      }
+
+      paper-tabs/*, .output::shadow paper-tabs*/ {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      paper-button {
+        margin-bottom: 16px;
+      }
+
+      #run {
+        background-color: var(--accent-color);
+      }
+
+      #save {
+        background-color: var(--light-accent-color);
+      }
+
+      #copy {
+        display: block;
+        width: 18em;
+        margin-left: auto;
+        margin-right: auto;
+        background-color: var(--light-accent-color);
+      }
+
+      .is-correct {
+        color: green;
+      }
+
+      .is-incorrect {
+        color: red;
+      }
+
+      .edit {
+        width: 60%;
+        margin-right: 8px;
+      }
+
+      .output {
+        width: 40%;
+        margin-left: 8px;
+      }
+
+      .iframe-container {
+        height: 0px;
+      }
+
+      .result {
+        width: 50%;
+      }
+
+      .output-line {
+        /* something? */
+      }
+
+      .mono {
+        font-family: monospace;
+        font-weight: bold;
+      }
+    </style>
+    <div class="layout horizontal justified">
+      <div class="edit">
+        <div class="layout horizontal justified">
+          <div>
+            <paper-button raised="" id="run">Run!</paper-button>
+            <paper-checkbox checked="" id="js-grader">Use JS Grader</paper-checkbox>
+          </div>
+        </div>
+        <paper-material class="editor">
+          <paper-tabs selected="{{selected}}">
+            <paper-tab>Start {{editorType}}</paper-tab>
+            <paper-tab>Correct {{editorType}}</paper-tab>
+            <paper-tab>Grading Code</paper-tab>
+          </paper-tabs>
+          <juicy-ace-editor wrapmode="true" mode="ace/mode/javascript" theme="ace/theme/clouds" id="editor">{{currentCode}}</juicy-ace-editor>
+        </paper-material>
+      </div>
+      <div class="output">
+        <h3>Output</h3>
+        <div class="iframe-container"></div>
+        <div class="layout horizontal justified">
+          <div class="result start">
+            <h4>Start Code</h4>
+            <p class="output-line">Correct: <span class$="mono {{formatCorrect(start.is_correct)}}">{{start.is_correct}}</span></p>
+            <p class="output-line">Feedback</p><p class="mono">{{start.test_feedback}}</p>
+            <p class="output-line">Comment</p><p class="mono">{{start.test_comments}}</p>
+            <p class="output-line">Congrats Message</p><p class="mono">{{start.congrats}}</p>
+          </div>
+          <div class="result correct">
+            <h4>Correct Code</h4>
+            <p class="output-line">Correct: <span class$="mono {{formatCorrect(correct.is_correct)}}">{{correct.is_correct}}</span></p>
+            <p class="output-line">Feedback</p><p class="mono">{{correct.test_feedback}}</p>
+            <p class="output-line">Comment</p><p class="mono">{{correct.test_comments}}</p>
+            <p class="output-line">Congrats Message</p><p class="mono">{{correct.congrats}}</p>
+          </div>
+        </div>
+        <paper-button id="copy" raised="">Copy for content editor</paper-button>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    (function() {
+      'use strict';
+
+      Polymer({
+        is: 'quiz-display',
+        behaviors: [QuizManager],
+        properties: {
+          type: {
+            type: String
+          },
+          editorType: {
+            type: String,
+            notify: true,
+            value: 'Code'
           }
+        },
+        generateIframe: function(type, content, id) {
+          if (this.iframeContainer.children.length >= 2) {
+            this.iframeContainer.innerHTML = '';
+          }
+
+          var iFrameContent = '';
+
+          var iFrameStart = '<html><head>';
+          var iFrameMiddle = '</head><body>';
+          var iFrameEnd = '</body></html>';
+
+          var iFrameHead = '<script src="bower_components/jquery/dist/jquery.min.js"><\/script><script>var performSubmission = function(o){ window.parent.performSubmission(o, \'' + id + '\'); };<\/script>';
+
+          var iFrameBody = '';
+
+          switch (type) {
+            case 'js':
+              iFrameBody = '<script>' + content + '<\/script>';
+              break;
+            case 'iframe':
+              iFrameBody = content;
+              break;
+            default:
+              iFrameBody = content;
+              break;
+          }
+
+          if (this.useJSGrader.checked) {
+            iFrameHead = iFrameHead + '<script>' + this.jsGrader + '<\/script>';
+          }
+
+          iFrameBody = iFrameBody + '<script>' + this.grading.code + '<\/script>';
+          iFrameContent = iFrameStart + iFrameHead + iFrameMiddle + iFrameBody + iFrameEnd;
+
+          var iframe = document.createElement('iframe');
+          iframe.setAttribute('frameborder', 0);
+          iframe.srcdoc = iFrameContent;
+          this.iframeContainer.appendChild(iframe);
         }
       });
     })();
@@ -15968,10 +16307,6 @@ module.exports = Array.isArray || function (arr) {
             <paper-button raised="" id="run">Run!</paper-button>
             <paper-checkbox checked="" id="js-grader">Use JS Grader</paper-checkbox>
           </div>
-          <div>
-            <span hidden="">Saved!</span>
-            <paper-button raised="" id="save">Save</paper-button>
-          </div>
         </div>
         <paper-material>
           <paper-tabs selected="{{selected}}">
@@ -16012,131 +16347,11 @@ module.exports = Array.isArray || function (arr) {
 
       Polymer({
         is: 'iframe-quiz',
-        attached: function() {
-          var self = this;
-          this.ace = this.querySelector('#editor');
-          // to match the starting tab
-          this.currentCode = this.start.code;
-
-          // update the model
-          this.ace.addEventListener('change', function (e) {
-            if (self.selected === 0) {
-              self.start.code = e.target.value;
-            } else if (self.selected === 1) {
-              self.correct.code = e.target.value;
-            } else if (self.selected === 2) {
-              self.set('gradingCode', e.target.value);
-            }
-          });
-
-          // keyboard shortcuts
-          var cmdDown = false;
-          window.addEventListener('keydown', function(e) {
-            if (e.keyCode === 91 || e.keyCode === 93 || e.keyCode === 17 || e.keyCode === 224) {
-              cmdDown = true;
-            }
-
-            if (e.keyCode === 13 && cmdDown) {
-              self.runButton.onclick();
-            }
-          });
-
-          window.addEventListener('keyup', function(e) {
-            if (e.keyCode === 91 || e.keyCode === 93 || e.keyCode === 17 || e.keyCode === 224) {
-              cmdDown = false;
-            }
-          });
-
-          // for use with generating iframes
-          this.iframeContainer = this.querySelector('.iframe-container');
-          this.runButton = this.querySelector('#run');
-          this.useJSGrader = this.querySelector('#js-grader');
-
-          window.performSubmission = function(results, id) {
-            if (!results) { throw new Error('Missing results object!'); }
-
-            self.set(id + '.is_correct', results['is_correct']);
-            self.set(id + '.test_feedback', results['test_feedback'] || 'none');
-            self.set(id + '.test_comments', results['test_comments'] || 'none');
-            self.set(id + '.congrats', results['congrats'] || 'none');
-          }
-
-          function runStartCode() {
-            self.generateIframe('html', self.start.code, 'start');
-          }
-
-          function runCorrectCode() {
-            self.generateIframe('html', self.correct.code, 'correct');
-          }
-
-          this.runButton.onclick = function() {
-            runStartCode();
-            runCorrectCode();
-          };
-
-          get('http://udacity.github.io/js-grader/grader.js')
-          .then(function(res) {
-            self.jsGrader = res;
-          });
-
-          // copying to clipboard
-          new Clipboard('#copy', {
-            text: function(trigger) {
-              var start = 'function performTesting() { return {result: \'noop\'}; }';
-              var gradingCode = self.gradingCode;
-              
-              var cString = '';
-              if (self.useJSGrader.checked) {
-                cString = start + self.jsGrader + self.gradingCode;
-              } else {
-                cString = start + self.gradingCode;
-              }
-              return cString;
-            }
-          });
-        },
-
+        behaviors: [QuizManager],
         properties: {
-          currentCode: {
+          type: {
             type: String,
-            notify: true
-          },
-          start: {
-            type: Object,
-            notify: true,
-            value: {
-              code: '<p>students see this when they start</p>',
-              is_correct: 'TBD',
-              test_feedback: 'TBD',
-              test_comments: 'TBD',
-              congrats: 'TBD'
-            }
-          },
-          correct: {
-            type: Object,
-            notify: true,
-            value: {
-              code: '<p>this code is correct</p>',
-              is_correct: 'TBD',
-              test_feedback: 'TBD',
-              test_comments: 'TBD',
-              congrats: 'TBD'
-            }
-          },
-          gradingCode: {
-            type: String,
-            notify: true,
-            value: '// use this method to register student results!\nperformSubmission({\n\tis_correct: false,\n\ttest_feedback: \'think about this to do better\',\n\ttest_comments: \'things that went well\',\n\tcongrats: \'nice job!\'\n});'
-          },
-          selected: {
-            type: Number,
-            observer: 'switchTabs',
-            value: 0
-          },
-          mode: {
-            type: String,
-            notify: true,
-            value: 'html'
+            value: 'iframe'
           }
         },
         switchTabs: function () {
@@ -16193,15 +16408,6 @@ module.exports = Array.isArray || function (arr) {
           iframe.setAttribute('frameborder', 0);
           iframe.srcdoc = iFrameContent;
           this.iframeContainer.appendChild(iframe);
-        },
-        formatCorrect: function(isCorrect) {
-          if (isCorrect === true) {
-            return 'is-correct';
-          } else if (isCorrect === false) {
-            return 'is-incorrect';
-          } else {
-            return '';
-          }
         }
       });
     })();
