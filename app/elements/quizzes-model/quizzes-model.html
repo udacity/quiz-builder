@@ -13,9 +13,9 @@
         iframe: [{
           name: 'init iframe',
           view: 'iframe',
-          start: 'test init start',
-          correct: 'test init correct',
-          grading: 'test init grading',
+          start: '<p>students see this when they start</p>',
+          correct: '<p>this code is correct</p>',
+          grading: '// use this method to register student results!\nperformSubmission({\n\tis_correct: false,\n\ttest_feedback: \'think about this to do better\',\n\ttest_comments: \'things that went well\',\n\tcongrats: \'nice job!\'\n});',
           useJSGrader: true
         }]
       },
