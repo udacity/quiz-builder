@@ -76,7 +76,7 @@
       // copying to clipboard
       new Clipboard('#copy', {
         text: function(trigger) {
-          var start = 'function performTesting() { return {result: \'noop\'}; }';
+          var start = 'function performTesting() { return {result: \'noop\'}; };\n';
           var gradingCode = self.grading.code;
           
           var cString = '';
