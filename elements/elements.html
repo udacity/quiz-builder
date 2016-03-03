@@ -15121,7 +15121,7 @@ module.exports = Array.isArray || function (arr) {
       app.route = 'home';
     });
 
-    page('/quiz/:type', next, function(ctx) {
+    page('/quiz/:type/:sample?', function(ctx) {
       app.route = 'quiz';
       app.params = ctx.params;
     });
@@ -15516,17 +15516,15 @@ module.exports = Array.isArray || function (arr) {
       <paper-material elevation="1">
         <h3>New Quiz</h3>
         <div>
-          <a href="{{baseUrl}}quiz/js"><paper-button raised="">Just JavaScript</paper-button></a>
-          <a href="{{baseUrl}}quiz/iframe"><paper-button raised="">iFrame</paper-button></a>
+          <a href="{{baseUrl}}quiz/javascript"><paper-button raised="">Just JavaScript</paper-button></a>
+          <a href="{{baseUrl}}quiz/html"><paper-button raised="">iFrame</paper-button></a>
         </div>
       </paper-material>
 
       <paper-material>
-        <h3>Saved Work</h3>
-      </paper-material>
-
-      <paper-material>
         <h3>Examples</h3>
+        <a href="{{baseUrl}}quiz/javascript/constructor"><paper-button raised="">Constructor Functions</paper-button></a>
+        <a href="{{baseUrl}}quiz/html/autocomplete"><paper-button raised="">Autocompleted Inputs</paper-button></a>
       </paper-material>
     </div>
   </template>
@@ -15552,40 +15550,37 @@ module.exports = Array.isArray || function (arr) {
   var model = (function() {
     var Quizzes = {
       initial: {
-        js: [{
-          name: 'init js',
-          view: 'programming',
+        javascript: {
           start: '// students see this when they start',
           correct: '// this code is correct',
           grading: '// use this method to register student results!\nperformSubmission({\n\tis_correct: false,\n\ttest_feedback: \'think about this to do better\',\n\ttest_comments: \'things that went well\',\n\tcongrats: \'nice job!\'\n});',
           useJSGrader: true
-        }],
-        iframe: [{
-          name: 'init iframe',
-          view: 'iframe',
-          start: 'test init start',
-          correct: 'test init correct',
-          grading: 'test init grading',
+        },
+        html: {
+          start: '<p>students see this when they start</p>',
+          correct: '<p>this code is correct</p>',
+          grading: '// use this method to register student results!\nperformSubmission({\n\tis_correct: false,\n\ttest_feedback: \'think about this to do better\',\n\ttest_comments: \'things that went well\',\n\tcongrats: \'nice job!\'\n});',
           useJSGrader: true
-        }]
+        }
       },
       sample: {
-        js: [{
-          name: 'sample js',
-          view: 'programming',
-          start: 'test sample start',
-          correct: 'test sample correct',
-          grading: 'test sample grading',
-          useJSGrader: true
-        }],
-        iframe: [{
-          name: 'sample iframe',
-          view: 'programming',
-          start: 'test sample start',
-          correct: 'test sample correct',
-          grading: 'test sample grading',
-          useJSGrader: true
-        }]
+        javascript: {
+          constructor: {
+            start: '// Create the numLetters constructor function. This function should:\n//\n// 1. accept a letter\n// 2. return a function\n// 3. the returned function should accept a number\n// 4. calling the returned function with a number should log out that many letters\n//\n',
+            correct: 'test sample correct',
+            grading: "var grader = new Grader(\'sync\');\n\ngrader.addTest(function() {\n\treturn typeof numLetters === \'function\';\n}, {\n\twrongMessage: '`numLetters` should be a function.\'\n}, false );\n\ngrader.addTest(function() {\n\tvar result = numLetters(\'a\');\n\n\treturn typeof result === \'function\';\n}, {\n\twrongMessage: '`numLetters` should return a function.\'\n});\n\ngrader.addTest(function() {\n\tvar lotsOfBbbbs = numLetters(\'b\');\n\tvar result = lotsOfBbbbs(9);\n\n\treturn typeof result === \'string\';\n}, {\n\twrongMessage: \'The function returned by `numLetters` should return a string.\'\n});\n\ngrader.addTest(function() {\n\tvar lotsOfCcccs = numLetters(\'c\');\n\tvar result1 = lotsOfCcccs(9);\n\tvar result2 = lotsOfCcccs(14);\n\tvar result3 = lotsOfCcccs(3);\n\n\treturn (result1.length === 9) && (result2.length === 14) && (result3 === \'ccc\');\n}, {\n\twrongMessage: \'Calling the function returned by `numLetters` with the 3 should return a string that is 3 characters long.\'\n});\n\ngrader.addTest(function() {\n\tvar lotsOfDddds = numLetters(\'d\');\n\tvar result = lotsOfDddds(9.7);\n\n\treturn result.length === 10;\n}, {\n\twrongMessage: \"Calling the function returned by `numLetters` with 9.7 should return a string that is 10 characters long.\"\n});\n\ngrader.runTests();\n\nperformSubmission({\n\tis_correct: grader.isCorrect,\n\ttest_feedback: grader.getFormattedWrongMessages(\'\\n\'),\n\ttest_comments: grader.getFormattedComments(\'\\n\'),\n\tcongrats: 'Nicely done. Making it possible to autcomplete your forms will definitely make them faster to finish!'\n});",
+            useJSGrader: true
+          }
+        },
+        html: {
+          autocomplete: {
+            name: 'autocomplete',
+            start: '<!DOCTYPE html>\n\n<!--\nMake this email input autofillable by adding an `autocomplete` attribute.\n-->\n\n<html lang="en">\n<head>\n\t<meta charset="UTF-8">\n\t<meta name="viewport" content="width=device-width, initial-scale=1">\n\t<title>Quiz - Autocomplete</title>\n</head>\n<body>\n\t<form action="#">\n\t\t<label for="email">\n\t\t\t<span>Email:</span>\n\t\t\t<input type="email" id="email" placeholder="example@udacity.com">\n\t\t</label>\n\t</form>\n</body>\n</html>',
+            correct: '<!DOCTYPE html>\n\n<!--\nMake this email input autofillable by adding an `autocomplete` attribute.\n-->\n\n<html lang="en">\n<head>\n\t<meta charset="UTF-8">\n\t<meta name="viewport" content="width=device-width, initial-scale=1">\n\t<title>Quiz - Autocomplete</title>\n</head>\n<body>\n\t<form action="#">\n\t\t<label for="email">\n\t\t\t<span>Email:</span>\n\t\t\t<input type="email" id="email" placeholder="example@udacity.com" autocomplete="email">\n\t\t</label>\n\t</form>\n</body>\n</html>',
+            grading: 'var grader = new Grader({\n\t// can add shared messages here\n});\n\ngrader.addTest(function() {\n\treturn grader.hasCorrectLength(\'label\', 1);\n}, {\n\twrongMessage: "There should be one <label>."\n}, false);\n\ngrader.addTest(function() {\n\treturn grader.hasCorrectLength(\'input\', 1);\n}, {\n\twrongMessage: "There should be one <input>."\n}, false);\n\ngrader.addTest(function() {\n\tvar isCorrect = false;\n\tvar input = $(\'input\');\n\tvar id = input.attr(\'id\');\n\tvar hasOneLabel = grader.hasCorrectLength(\'label[for="\' + id + \'"]\', 1) || grader.hasParent(input, \'label\');\n\tisCorrect = hasOneLabel;\n\treturn isCorrect;\n}, {\n\twrongMessage: "The <input> needs to be paired with the <label>."\n});\n\ngrader.addTest(function() {\n\treturn grader.hasCorrectLength(\'input[type="email"]\', 1);\n}, {\n\twrongMessage: "The <input> should be for type=\'email\'."\n}, false);\n\ngrader.addTest(function() {\n\treturn grader.hasAttr(\'input\', \'autocomplete\', \'email\');\n}, {\n\twrongMessage: "The <input> needs to autcomplete email addresses."\n});\n\ngrader.runTests(\n\t// {ignoreCheckpoints: true}\n);\n\nperformSubmission({\n\tis_correct: grader.isCorrect,\n\ttest_feedback: grader.getFormattedWrongMessages(\'\\n\'),\n\ttest_comments: grader.getFormattedComments(\'\\n\'),\n\tcongrats: "Nicely done. Making it possible to autcomplete your forms will definitely make them faster to finish!"\n});',
+            useJSGrader: true
+          }
+        }
       },
       // saved: {
       //   js: [],
@@ -15741,7 +15736,7 @@ module.exports = Array.isArray || function (arr) {
       // copying to clipboard
       new Clipboard('#copy', {
         text: function(trigger) {
-          var start = 'function performTesting() { return {result: \'noop\'}; }';
+          var start = 'function performTesting() { return {result: \'noop\'}; };\n';
           var gradingCode = self.grading.code;
           
           var cString = '';
@@ -15811,35 +15806,54 @@ module.exports = Array.isArray || function (arr) {
     },
     reactToType: function(quizType) {
       var self = this;
+
+      var startCode = '';
+      var correctCode = '';
+      var gradingCode = '';
+
       switch (self.quizType) {
-        case 'js':
+        case 'javascript':
           self.set('editorType', 'JS');
-          self.set('start.code', model.initial.js[0].start);
-          self.set('correct.code', model.initial.js[0].correct);
-          self.set('grading.code', model.initial.js[0].grading);
           break;
-        case 'iframe':
+        case 'html':
           self.set('editorType', 'HTML');
-          self.set('start.code', model.initial.iframe[0].start);
-          self.set('correct.code', model.initial.iframe[0].correct);
-          self.set('grading.code', model.initial.iframe[0].grading);
           break;
         default:
+          // this probably shouldn't ever happen
           self.set('editorType', 'Code');
           break;
       }
+
+      if (self.sampleQuiz) {
+        startCode = model.sample[self.quizType][self.sampleQuiz].start;
+        correctCode = model.sample[self.quizType][self.sampleQuiz].correct;
+        gradingCode = model.sample[self.quizType][self.sampleQuiz].grading;
+      } else {
+        startCode = model.initial[self.quizType].start;
+        correctCode = model.initial[self.quizType].correct;
+        gradingCode = model.initial[self.quizType].grading;
+      }
+
+      self.set('start.code', startCode);
+      self.set('correct.code', correctCode);
+      self.set('grading.code', gradingCode);
       self.switchTabs();
     },
     switchTabs: function () {
       try {
         if (this.selected === 0) {
-          this.currentCode = this.start.code;
+          this.set('currentCode', this.start.code);
+          this.set('mode', this.quizType);
         } else if (this.selected === 1) {
-          this.currentCode = this.correct.code;
+          this.set('currentCode', this.correct.code);
+          this.set('mode', this.quizType);
         } else if (this.selected === 2) {
           this.set('currentCode', this.grading.code);
+          this.set('mode', 'javascript');
         }
       } catch (e) {
+        this.set('currentCode', 'default');
+        this.set('mode', 'text');
         return;
       }
     },
@@ -15853,194 +15867,7 @@ module.exports = Array.isArray || function (arr) {
       }
     }
   };
-</script><dom-module id="programming-quiz" assetpath="programming-quiz/">
-  <template>
-    <style include="shared-styles">
-      :host {
-        display: block;
-      }
-      juicy-ace-editor {
-        height: 500px;
-        max-width: 100%;
-        border: 1px solid #ddd;
-      }
-
-      paper-material {
-        padding: 16px 16px;
-        background-color: white;
-      }
-
-      paper-tabs {
-        background-color: var(--primary-color);
-        color: white;
-      }
-
-      paper-button {
-        margin-bottom: 16px;
-      }
-
-      #run {
-        background-color: var(--accent-color);
-      }
-
-      #save {
-        background-color: var(--light-accent-color);
-      }
-
-      #copy {
-        display: block;
-        width: 18em;
-        margin-left: auto;
-        margin-right: auto;
-        background-color: var(--light-accent-color);
-      }
-
-      .is-correct {
-        color: green;
-      }
-
-      .is-incorrect {
-        color: red;
-      }
-
-      .edit {
-        width: 60%;
-        margin-right: 8px;
-      }
-
-      .output {
-        width: 40%;
-        margin-left: 8px;
-      }
-
-      .iframe-container {
-        height: 0px;
-      }
-
-      .result {
-        width: 50%;
-      }
-
-      .output-line {
-        /* something? */
-      }
-
-      .mono {
-        font-family: monospace;
-        font-weight: bold;
-      }
-    </style>
-    <div class="layout horizontal justified">
-      <div class="edit">
-        <div class="layout horizontal justified">
-          <div>
-            <paper-button raised="" id="run">Run!</paper-button>
-            <paper-checkbox checked="" id="js-grader">Use JS Grader</paper-checkbox>
-          </div>
-        </div>
-        <paper-material>
-          <paper-tabs selected="{{selected}}">
-            <paper-tab>Start Code</paper-tab>
-            <paper-tab>Correct Code</paper-tab>
-            <paper-tab>Grading Code</paper-tab>
-          </paper-tabs>
-          <juicy-ace-editor wrapmode="true" mode="ace/mode/javascript" theme="ace/theme/clouds" id="editor">{{currentCode}}</juicy-ace-editor>
-        </paper-material>
-      </div>
-      <div class="output">
-        <h3>Output</h3>
-        <div class="iframe-container"></div>
-        <div class="layout horizontal justified">
-          <div class="result start">
-            <h4>Start Code</h4>
-            <p class="output-line">Correct: <span class$="mono {{formatCorrect(start.is_correct)}}">{{start.is_correct}}</span></p>
-            <p class="output-line">Feedback</p><p class="mono">{{start.test_feedback}}</p>
-            <p class="output-line">Comment</p><p class="mono">{{start.test_comments}}</p>
-            <p class="output-line">Congrats Message</p><p class="mono">{{start.congrats}}</p>
-          </div>
-          <div class="result correct">
-            <h4>Correct Code</h4>
-            <p class="output-line">Correct: <span class$="mono {{formatCorrect(correct.is_correct)}}">{{correct.is_correct}}</span></p>
-            <p class="output-line">Feedback</p><p class="mono">{{correct.test_feedback}}</p>
-            <p class="output-line">Comment</p><p class="mono">{{correct.test_comments}}</p>
-            <p class="output-line">Congrats Message</p><p class="mono">{{correct.congrats}}</p>
-          </div>
-        </div>
-        <paper-button id="copy" raised="">Copy for content editor</paper-button>
-      </div>
-    </div>
-  </template>
-
-  <script>
-    (function() {
-      'use strict';
-
-      Polymer({
-        is: 'programming-quiz',
-        behaviors: [QuizManager],
-        properties: {
-          type: {
-            type: String,
-            value: 'js'
-          }
-        },
-        switchTabs: function () {
-          try {
-            if (this.selected === 0) {
-              this.currentCode = this.start.code;
-            } else if (this.selected === 1) {
-              this.currentCode = this.correct.code;
-            } else if (this.selected === 2) {
-              this.set('currentCode', this.gradingCode);
-            }
-          } catch (e) {
-            return;
-          }
-        },
-        generateIframe: function(type, content, id) {
-          if (this.iframeContainer.children.length >= 2) {
-            this.iframeContainer.innerHTML = '';
-          }
-
-          var iFrameContent = '';
-
-          var iFrameStart = '<html><head>';
-          var iFrameMiddle = '</head><body>';
-          var iFrameEnd = '</body></html>';
-
-          var iFrameHead = '<script src="bower_components/jquery/dist/jquery.min.js"><\/script><script>var performSubmission = function(o){ window.parent.performSubmission(o, \'' + id + '\'); };<\/script>';
-
-          var iFrameBody = '';
-
-          switch (type) {
-            case 'script':
-              iFrameBody = '<script>' + content + '<\/script>';
-              break;
-            case 'html':
-              iFrameBody = content;
-              break;
-            default:
-              iFrameBody = content;
-              break;
-          }
-
-          if (this.useJSGrader.checked) {
-            iFrameHead = iFrameHead + '<script>' + this.jsGrader + '<\/script>';
-          }
-
-          iFrameBody = iFrameBody + '<script>' + this.gradingCode + '<\/script>';
-          iFrameContent = iFrameStart + iFrameHead + iFrameMiddle + iFrameBody + iFrameEnd;
-
-          var iframe = document.createElement('iframe');
-          iframe.setAttribute('frameborder', 0);
-          iframe.srcdoc = iFrameContent;
-          this.iframeContainer.appendChild(iframe);
-        }
-      });
-    })();
-  </script>
-</dom-module>
-<dom-module id="quiz-display" assetpath="quiz-display/">
+</script><dom-module id="quiz-display" assetpath="quiz-display/">
   <template>
     <style include="shared-styles">
       :host {
@@ -16101,7 +15928,8 @@ module.exports = Array.isArray || function (arr) {
       }
 
       .iframe-container {
-        height: 0px;
+        background-color: white;
+        height: 200px;
       }
 
       .result {
@@ -16131,12 +15959,11 @@ module.exports = Array.isArray || function (arr) {
             <paper-tab>Correct {{editorType}}</paper-tab>
             <paper-tab>Grading Code</paper-tab>
           </paper-tabs>
-          <juicy-ace-editor wrapmode="true" mode="ace/mode/javascript" theme="ace/theme/clouds" id="editor">{{currentCode}}</juicy-ace-editor>
+          <juicy-ace-editor wrapmode="true" mode$="ace/mode/{{mode}}" theme="ace/theme/clouds" id="editor">{{currentCode}}</juicy-ace-editor>
         </paper-material>
       </div>
       <div class="output">
         <h3>Output</h3>
-        <div class="iframe-container"></div>
         <div class="layout horizontal justified">
           <div class="result start">
             <h4>Start Code</h4>
@@ -16154,6 +15981,7 @@ module.exports = Array.isArray || function (arr) {
           </div>
         </div>
         <paper-button id="copy" raised="">Copy for content editor</paper-button>
+        <div hidden$="{{isNotIframe(quizType)}}" class="iframe-container layout horizontal"></div>
       </div>
     </div>
   </template>
@@ -16213,201 +16041,13 @@ module.exports = Array.isArray || function (arr) {
           iframe.setAttribute('frameborder', 0);
           iframe.srcdoc = iFrameContent;
           this.iframeContainer.appendChild(iframe);
-        }
-      });
-    })();
-  </script>
-</dom-module>
-<dom-module id="iframe-quiz" assetpath="iframe-quiz/">
-  <template>
-    <style include="shared-styles">
-      :host {
-        display: block;
-      }
-      juicy-ace-editor {
-        height: 500px;
-        max-width: 100%;
-        border: 1px solid #ddd;
-      }
-
-      paper-material {
-        padding: 16px 16px;
-        background-color: white;
-      }
-
-      paper-tabs {
-        background-color: var(--primary-color);
-        color: white;
-      }
-
-      paper-button {
-        margin-bottom: 16px;
-      }
-
-      #run {
-        background-color: var(--accent-color);
-      }
-
-      #save {
-        background-color: var(--light-accent-color);
-      }
-
-      #copy {
-        display: block;
-        width: 18em;
-        margin-left: auto;
-        margin-right: auto;
-        background-color: var(--light-accent-color);
-      }
-
-      .is-correct {
-        color: green;
-      }
-
-      .is-incorrect {
-        color: red;
-      }
-
-      .edit {
-        width: 60%;
-        margin-right: 8px;
-      }
-
-      .output {
-        width: 40%;
-        margin-left: 8px;
-      }
-
-      .iframe-container {
-        height: 200px;
-        background-color: white;
-      }
-
-      iframe {
-        max-width: 50%;
-      }
-
-      .result {
-        width: 50%;
-      }
-
-      .output-line {
-        /* something? */
-      }
-
-      .mono {
-        font-family: monospace;
-        font-weight: bold;
-      }
-    </style>
-    <div class="layout horizontal justified">
-      <div class="edit">
-        <div class="layout horizontal justified">
-          <div>
-            <paper-button raised="" id="run">Run!</paper-button>
-            <paper-checkbox checked="" id="js-grader">Use JS Grader</paper-checkbox>
-          </div>
-        </div>
-        <paper-material>
-          <paper-tabs selected="{{selected}}">
-            <paper-tab>Start HTML</paper-tab>
-            <paper-tab>Correct HTML</paper-tab>
-            <paper-tab>Grading Code</paper-tab>
-          </paper-tabs>
-          <juicy-ace-editor wrapmode="true" mode$="ace/mode/{{mode}}" theme="ace/theme/clouds" id="editor">{{currentCode}}</juicy-ace-editor>
-        </paper-material>
-      </div>
-      <div class="output">
-        <h3>Output</h3>
-        <div class="layout horizontal justified">
-          <div class="result start">
-            <h4>Start Code</h4>
-            <p class="output-line">Correct: <span class$="mono {{formatCorrect(start.is_correct)}}">{{start.is_correct}}</span></p>
-            <p class="output-line">Feedback</p><p class="mono">{{start.test_feedback}}</p>
-            <p class="output-line">Comment</p><p class="mono">{{start.test_comments}}</p>
-            <p class="output-line">Congrats Message</p><p class="mono">{{start.congrats}}</p>
-          </div>
-          <div class="result correct">
-            <h4>Correct Code</h4>
-            <p class="output-line">Correct: <span class$="mono {{formatCorrect(correct.is_correct)}}">{{correct.is_correct}}</span></p>
-            <p class="output-line">Feedback</p><p class="mono">{{correct.test_feedback}}</p>
-            <p class="output-line">Comment</p><p class="mono">{{correct.test_comments}}</p>
-            <p class="output-line">Congrats Message</p><p class="mono">{{correct.congrats}}</p>
-          </div>
-        </div>
-        <paper-button id="copy" raised="">Copy for content editor</paper-button>
-        <div class="iframe-container layout horizontal"></div>
-      </div>
-    </div>
-  </template>
-
-  <script>
-    (function() {
-      'use strict';
-
-      Polymer({
-        is: 'iframe-quiz',
-        behaviors: [QuizManager],
-        properties: {
-          type: {
-            type: String,
-            value: 'iframe'
-          }
         },
-        switchTabs: function () {
-          try {
-            if (this.selected === 0) {
-              this.currentCode = this.start.code;
-              this.set('mode', 'html');
-            } else if (this.selected === 1) {
-              this.currentCode = this.correct.code;
-              this.set('mode', 'html');
-            } else if (this.selected === 2) {
-              this.set('currentCode', this.gradingCode);
-              this.set('mode', 'javascript');
-            }
-          } catch (e) {
-            return;
+        isNotIframe: function(quizType) {
+          if (quizType === 'html') {
+            return false;
+          } else {
+            return true;
           }
-        },
-        generateIframe: function(type, content, id) {
-          if (this.iframeContainer.children.length >= 2) {
-            this.iframeContainer.innerHTML = '';
-          }
-
-          var iFrameContent = '';
-
-          var iFrameStart = '<html><head>';
-          var iFrameMiddle = '</head><body>';
-          var iFrameEnd = '</body></html>';
-
-          var iFrameHead = '<script src="bower_components/jquery/dist/jquery.min.js"><\/script><script>var performSubmission = function(o){ window.parent.performSubmission(o, \'' + id + '\'); };<\/script>';
-
-          var iFrameBody = '';
-
-          switch (type) {
-            case 'script':
-              iFrameBody = '<script>' + content + '<\/script>';
-              break;
-            case 'html':
-              iFrameBody = content;
-              break;
-            default:
-              iFrameBody = content;
-              break;
-          }
-
-          if (this.useJSGrader.checked) {
-            iFrameHead = iFrameHead + '<script>' + this.jsGrader + '<\/script>';
-          }
-
-          iFrameBody = iFrameBody + '<script>' + this.gradingCode + '<\/script>';
-          iFrameContent = iFrameStart + iFrameHead + iFrameMiddle + iFrameBody + iFrameEnd;
-
-          var iframe = document.createElement('iframe');
-          iframe.setAttribute('frameborder', 0);
-          iframe.srcdoc = iFrameContent;
-          this.iframeContainer.appendChild(iframe);
         }
       });
     })();
