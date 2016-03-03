@@ -2,40 +2,37 @@
   var model = (function() {
     var Quizzes = {
       initial: {
-        js: [{
-          name: 'init js',
-          view: 'programming',
+        javascript: {
           start: '// students see this when they start',
           correct: '// this code is correct',
           grading: '// use this method to register student results!\nperformSubmission({\n\tis_correct: false,\n\ttest_feedback: \'think about this to do better\',\n\ttest_comments: \'things that went well\',\n\tcongrats: \'nice job!\'\n});',
           useJSGrader: true
-        }],
-        iframe: [{
-          name: 'init iframe',
-          view: 'iframe',
+        },
+        html: {
           start: '<p>students see this when they start</p>',
           correct: '<p>this code is correct</p>',
           grading: '// use this method to register student results!\nperformSubmission({\n\tis_correct: false,\n\ttest_feedback: \'think about this to do better\',\n\ttest_comments: \'things that went well\',\n\tcongrats: \'nice job!\'\n});',
           useJSGrader: true
-        }]
+        }
       },
       sample: {
-        js: [{
-          name: 'sample js',
-          view: 'programming',
-          start: 'test sample start',
-          correct: 'test sample correct',
-          grading: 'test sample grading',
-          useJSGrader: true
-        }],
-        iframe: [{
-          name: 'sample iframe',
-          view: 'programming',
-          start: 'test sample start',
-          correct: 'test sample correct',
-          grading: 'test sample grading',
-          useJSGrader: true
-        }]
+        javascript: {
+          constructor: {
+            start: '// Create the numLetters constructor function. This function should:\n//\n// 1. accept a letter\n// 2. return a function\n// 3. the returned function should accept a number\n// 4. calling the returned function with a number should log out that many letters\n//\n',
+            correct: 'test sample correct',
+            grading: "var grader = new Grader(\'sync\');\n\ngrader.addTest(function() {\n\treturn typeof numLetters === \'function\';\n}, {\n\twrongMessage: '`numLetters` should be a function.\'\n}, false );\n\ngrader.addTest(function() {\n\tvar result = numLetters(\'a\');\n\n\treturn typeof result === \'function\';\n}, {\n\twrongMessage: '`numLetters` should return a function.\'\n});\n\ngrader.addTest(function() {\n\tvar lotsOfBbbbs = numLetters(\'b\');\n\tvar result = lotsOfBbbbs(9);\n\n\treturn typeof result === \'string\';\n}, {\n\twrongMessage: \'The function returned by `numLetters` should return a string.\'\n});\n\ngrader.addTest(function() {\n\tvar lotsOfCcccs = numLetters(\'c\');\n\tvar result1 = lotsOfCcccs(9);\n\tvar result2 = lotsOfCcccs(14);\n\tvar result3 = lotsOfCcccs(3);\n\n\treturn (result1.length === 9) && (result2.length === 14) && (result3 === \'ccc\');\n}, {\n\twrongMessage: \'Calling the function returned by `numLetters` with the 3 should return a string that is 3 characters long.\'\n});\n\ngrader.addTest(function() {\n\tvar lotsOfDddds = numLetters(\'d\');\n\tvar result = lotsOfDddds(9.7);\n\n\treturn result.length === 10;\n}, {\n\twrongMessage: \"Calling the function returned by `numLetters` with 9.7 should return a string that is 10 characters long.\"\n});\n\ngrader.runTests();\n\nperformSubmission({\n\tis_correct: grader.isCorrect,\n\ttest_feedback: grader.getFormattedWrongMessages(\'\\n\'),\n\ttest_comments: grader.getFormattedComments(\'\\n\'),\n\tcongrats: 'Nicely done. Making it possible to autcomplete your forms will definitely make them faster to finish!'\n});",
+            useJSGrader: true
+          }
+        },
+        html: {
+          autocomplete: {
+            name: 'autocomplete',
+            start: '<!DOCTYPE html>\n\n<!--\nMake this email input autofillable by adding an `autocomplete` attribute.\n-->\n\n<html lang="en">\n<head>\n\t<meta charset="UTF-8">\n\t<meta name="viewport" content="width=device-width, initial-scale=1">\n\t<title>Quiz - Autocomplete</title>\n</head>\n<body>\n\t<form action="#">\n\t\t<label for="email">\n\t\t\t<span>Email:</span>\n\t\t\t<input type="email" id="email" placeholder="example@udacity.com">\n\t\t</label>\n\t</form>\n</body>\n</html>',
+            correct: '<!DOCTYPE html>\n\n<!--\nMake this email input autofillable by adding an `autocomplete` attribute.\n-->\n\n<html lang="en">\n<head>\n\t<meta charset="UTF-8">\n\t<meta name="viewport" content="width=device-width, initial-scale=1">\n\t<title>Quiz - Autocomplete</title>\n</head>\n<body>\n\t<form action="#">\n\t\t<label for="email">\n\t\t\t<span>Email:</span>\n\t\t\t<input type="email" id="email" placeholder="example@udacity.com" autocomplete="email">\n\t\t</label>\n\t</form>\n</body>\n</html>',
+            grading: 'var grader = new Grader({\n\t// can add shared messages here\n});\n\ngrader.addTest(function() {\n\treturn grader.hasCorrectLength(\'label\', 1);\n}, {\n\twrongMessage: "There should be one <label>."\n}, false);\n\ngrader.addTest(function() {\n\treturn grader.hasCorrectLength(\'input\', 1);\n}, {\n\twrongMessage: "There should be one <input>."\n}, false);\n\ngrader.addTest(function() {\n\tvar isCorrect = false;\n\tvar input = $(\'input\');\n\tvar id = input.attr(\'id\');\n\tvar hasOneLabel = grader.hasCorrectLength(\'label[for="\' + id + \'"]\', 1) || grader.hasParent(input, \'label\');\n\tisCorrect = hasOneLabel;\n\treturn isCorrect;\n}, {\n\twrongMessage: "The <input> needs to be paired with the <label>."\n});\n\ngrader.addTest(function() {\n\treturn grader.hasCorrectLength(\'input[type="email"]\', 1);\n}, {\n\twrongMessage: "The <input> should be for type=\'email\'."\n}, false);\n\ngrader.addTest(function() {\n\treturn grader.hasAttr(\'input\', \'autocomplete\', \'email\');\n}, {\n\twrongMessage: "The <input> needs to autcomplete email addresses."\n});\n\ngrader.runTests(\n\t// {ignoreCheckpoints: true}\n);\n\nperformSubmission({\n\tis_correct: grader.isCorrect,\n\ttest_feedback: grader.getFormattedWrongMessages(\'\\n\'),\n\ttest_comments: grader.getFormattedComments(\'\\n\'),\n\tcongrats: "Nicely done. Making it possible to autcomplete your forms will definitely make them faster to finish!"\n});',
+            useJSGrader: true
+          }
+        }
       },
       // saved: {
       //   js: [],

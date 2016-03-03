@@ -39,7 +39,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       app.route = 'home';
     });
 
-    page('/quiz/:type', next, function(ctx) {
+    page('/quiz/:type/:sample?', function(ctx) {
       app.route = 'quiz';
       app.params = ctx.params;
     });

@@ -146,37 +146,54 @@
     },
     reactToType: function(quizType) {
       var self = this;
+
+      var startCode = '';
+      var correctCode = '';
+      var gradingCode = '';
+
       switch (self.quizType) {
-        case 'js':
+        case 'javascript':
           self.set('editorType', 'JS');
-          self.set('mode', 'javascript');
-          self.set('start.code', model.initial.js[0].start);
-          self.set('correct.code', model.initial.js[0].correct);
-          self.set('grading.code', model.initial.js[0].grading);
           break;
-        case 'iframe':
+        case 'html':
           self.set('editorType', 'HTML');
-          self.set('mode', 'html');
-          self.set('start.code', model.initial.iframe[0].start);
-          self.set('correct.code', model.initial.iframe[0].correct);
-          self.set('grading.code', model.initial.iframe[0].grading);
           break;
         default:
+          // this probably shouldn't ever happen
           self.set('editorType', 'Code');
           break;
       }
+
+      if (self.sampleQuiz) {
+        startCode = model.sample[self.quizType][self.sampleQuiz].start;
+        correctCode = model.sample[self.quizType][self.sampleQuiz].correct;
+        gradingCode = model.sample[self.quizType][self.sampleQuiz].grading;
+      } else {
+        startCode = model.initial[self.quizType].start;
+        correctCode = model.initial[self.quizType].correct;
+        gradingCode = model.initial[self.quizType].grading;
+      }
+
+      self.set('start.code', startCode);
+      self.set('correct.code', correctCode);
+      self.set('grading.code', gradingCode);
       self.switchTabs();
     },
     switchTabs: function () {
       try {
         if (this.selected === 0) {
-          this.currentCode = this.start.code;
+          this.set('currentCode', this.start.code);
+          this.set('mode', this.quizType);
         } else if (this.selected === 1) {
-          this.currentCode = this.correct.code;
+          this.set('currentCode', this.correct.code);
+          this.set('mode', this.quizType);
         } else if (this.selected === 2) {
           this.set('currentCode', this.grading.code);
+          this.set('mode', 'javascript');
         }
       } catch (e) {
+        this.set('currentCode', 'default');
+        this.set('mode', 'text');
         return;
       }
     },
