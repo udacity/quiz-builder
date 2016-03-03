@@ -62,7 +62,8 @@
       }
 
       .iframe-container {
-        height: 0px;
+        background-color: white;
+        height: 200px;
       }
 
       .result {
@@ -97,7 +98,6 @@
       </div>
       <div class="output">
         <h3>Output</h3>
-        <div class="iframe-container"></div>
         <div class="layout horizontal justified">
           <div class="result start">
             <h4>Start Code</h4>
@@ -177,7 +177,9 @@
           this.iframeContainer.appendChild(iframe);
         },
         isNotIframe: function(quizType) {
-          if (quizType === 'iframe') {
+          if (quizType === 'html') {
+            return false;
+          } else {
             return true;
           }
         }
