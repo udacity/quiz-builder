@@ -92,7 +92,7 @@
             <paper-tab>Correct {{editorType}}</paper-tab>
             <paper-tab>Grading Code</paper-tab>
           </paper-tabs>
-          <juicy-ace-editor wrapmode="true" mode="ace/mode/javascript" theme="ace/theme/clouds" id="editor">{{currentCode}}</juicy-ace-editor>
+          <juicy-ace-editor wrapmode="true" mode$="ace/mode/{{mode}}" theme="ace/theme/clouds" id="editor">{{currentCode}}</juicy-ace-editor>
         </paper-material>
       </div>
       <div class="output">
@@ -115,6 +115,7 @@
           </div>
         </div>
         <paper-button id="copy" raised>Copy for content editor</paper-button>
+        <div hidden$={{isNotIframe(quizType)}} class="iframe-container layout horizontal"></div>
       </div>
     </div>
   </template>
@@ -174,6 +175,11 @@
           iframe.setAttribute('frameborder', 0);
           iframe.srcdoc = iFrameContent;
           this.iframeContainer.appendChild(iframe);
+        },
+        isNotIframe: function(quizType) {
+          if (quizType === 'iframe') {
+            return true;
+          }
         }
       });
     })();

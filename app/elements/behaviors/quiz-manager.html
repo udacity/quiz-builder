@@ -149,12 +149,14 @@
       switch (self.quizType) {
         case 'js':
           self.set('editorType', 'JS');
+          self.set('mode', 'javascript');
           self.set('start.code', model.initial.js[0].start);
           self.set('correct.code', model.initial.js[0].correct);
           self.set('grading.code', model.initial.js[0].grading);
           break;
         case 'iframe':
           self.set('editorType', 'HTML');
+          self.set('mode', 'html');
           self.set('start.code', model.initial.iframe[0].start);
           self.set('correct.code', model.initial.iframe[0].correct);
           self.set('grading.code', model.initial.iframe[0].grading);
