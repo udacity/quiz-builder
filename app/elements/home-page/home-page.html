@@ -25,14 +25,14 @@
         color: white;
       }
 
-      a {
+      a:not(.show) {
         text-decoration: none;
         color: var(--primary-text-color);
       }
 
     </style>
     <div>
-      <h1>Quiz Builder</h1>
+      <h1>Programming Quiz Builder</h1>
       <paper-material elevation="1">
         <h3>New Quiz</h3>
         <div>
@@ -45,6 +45,18 @@
         <h3>Examples</h3>
         <a href="{{baseUrl}}quiz/javascript/constructor"><paper-button raised>Constructor Functions</paper-button></a>
         <a href="{{baseUrl}}quiz/html/autocomplete"><paper-button raised>Autocompleted Inputs</paper-button></a>
+      </paper-material>
+
+      <paper-material>
+        <h3>How To</h3>
+        <ol>
+          <li>Think of an idea for a quiz. Keep it as realistic as possible.</li>
+          <li>Read up on the <a class="show" href="https://github.com/udacity/js-grader">JS Grader</a>, a JS library used to grade programming quizzes the same way teachers grade work.</li>
+          <li>Write the start code. This is code that students see when they start the quiz. It should be wrong.</li>
+          <li>Write the correct code. This is code that should pass the grader.</li>
+          <li>Write the grading code. This is code that runs against the student code and provides feedback.</li>
+          <li>Test! Hit "RUN!" or just (⌘ + enter) on a Mac. Check the output to see the feedback students would receive.</li>
+        </ol>
       </paper-material>
     </div>
   </template>
