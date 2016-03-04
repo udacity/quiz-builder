@@ -15517,7 +15517,7 @@ module.exports = Array.isArray || function (arr) {
         <h3>New Quiz</h3>
         <div>
           <a href="{{baseUrl}}quiz/javascript"><paper-button raised="">Just JavaScript</paper-button></a>
-          <a href="{{baseUrl}}quiz/html"><paper-button raised="">iFrame</paper-button></a>
+          <a href="{{baseUrl}}quiz/html"><paper-button raised="">HTML/CSS with JS</paper-button></a>
         </div>
       </paper-material>
 
@@ -15531,7 +15531,7 @@ module.exports = Array.isArray || function (arr) {
         <h3>How To</h3>
         <ol>
           <li>Think of an idea for a quiz. Keep it as realistic as possible.</li>
-          <li>Read up on the <a class="show" href="https://github.com/udacity/js-grader">JS Grader</a>, a JS library used to grade programming quizzes the same way teachers grade work.</li>
+          <li>Read up on the <a class="show" target="_blank" href="https://github.com/udacity/js-grader">JS Grader</a>, a JS library used to grade programming quizzes the same way teachers grade work.</li>
           <li>Write the start code. This is code that students see when they start the quiz. It should be wrong.</li>
           <li>Write the correct code. This is code that should pass the grader.</li>
           <li>Write the grading code. This is code that runs against the student code and provides feedback.</li>
@@ -15565,13 +15565,13 @@ module.exports = Array.isArray || function (arr) {
         javascript: {
           start: '// students see this when they start',
           correct: '// this code is correct',
-          grading: '// use this method to register student results!\nperformSubmission({\n\tis_correct: false,\n\ttest_feedback: \'think about this to do better\',\n\ttest_comments: \'things that went well\',\n\tcongrats: \'nice job!\'\n});',
+          grading: '// use this method to register student results!\nfunction performSubmission() {\n\treturn {\n\t\tis_correct: false,\n\t\ttest_feedback: \'think about this to do better\',\n\t\ttest_comments: \'things that went well\',\n\t\tcongrats: \'nice job!\'\n\t}\n}',
           useJSGrader: true
         },
         html: {
           start: '<p>students see this when they start</p>',
           correct: '<p>this code is correct</p>',
-          grading: '// use this method to register student results!\nperformSubmission({\n\tis_correct: false,\n\ttest_feedback: \'think about this to do better\',\n\ttest_comments: \'things that went well\',\n\tcongrats: \'nice job!\'\n});',
+          grading: '// use this method to register student results!\nfunction performSubmission() {\n\treturn {\n\t\tis_correct: false,\n\t\ttest_feedback: \'think about this to do better\',\n\t\ttest_comments: \'things that went well\',\n\t\tcongrats: \'nice job!\'\n\t}\n}',
           useJSGrader: true
         }
       },
@@ -15579,7 +15579,7 @@ module.exports = Array.isArray || function (arr) {
         javascript: {
           constructor: {
             start: '// Create the numLetters constructor function. This function should:\n//\n// 1. accept a letter\n// 2. return a function\n// 3. the returned function should accept a number\n// 4. calling the returned function with a number should log out that many letters\n//\n',
-            correct: 'test sample correct',
+            correct: "var numLetters = function(letter) {\n\treturn new Function('times', 'if (times < 0) return \"\"; var result = \"\"; times = Math.round(times); while(times--) { result += ' + letter + '; } return result;');\n};\n\nvar LotsOfAaas = numLetters('a');\n\nLotsOfAaas(4.3); // aaaa",
             grading: "var grader = new Grader(\'sync\');\n\ngrader.addTest(function() {\n\treturn typeof numLetters === \'function\';\n}, {\n\twrongMessage: '`numLetters` should be a function.\'\n}, false );\n\ngrader.addTest(function() {\n\tvar result = numLetters(\'a\');\n\n\treturn typeof result === \'function\';\n}, {\n\twrongMessage: '`numLetters` should return a function.\'\n});\n\ngrader.addTest(function() {\n\tvar lotsOfBbbbs = numLetters(\'b\');\n\tvar result = lotsOfBbbbs(9);\n\n\treturn typeof result === \'string\';\n}, {\n\twrongMessage: \'The function returned by `numLetters` should return a string.\'\n});\n\ngrader.addTest(function() {\n\tvar lotsOfCcccs = numLetters(\'c\');\n\tvar result1 = lotsOfCcccs(9);\n\tvar result2 = lotsOfCcccs(14);\n\tvar result3 = lotsOfCcccs(3);\n\n\treturn (result1.length === 9) && (result2.length === 14) && (result3 === \'ccc\');\n}, {\n\twrongMessage: \'Calling the function returned by `numLetters` with the 3 should return a string that is 3 characters long.\'\n});\n\ngrader.addTest(function() {\n\tvar lotsOfDddds = numLetters(\'d\');\n\tvar result = lotsOfDddds(9.7);\n\n\treturn result.length === 10;\n}, {\n\twrongMessage: \"Calling the function returned by `numLetters` with 9.7 should return a string that is 10 characters long.\"\n});\n\ngrader.runTests();\n\nperformSubmission({\n\tis_correct: grader.isCorrect,\n\ttest_feedback: grader.getFormattedWrongMessages(\'\\n\'),\n\ttest_comments: grader.getFormattedComments(\'\\n\'),\n\tcongrats: 'Nicely done. Making it possible to autcomplete your forms will definitely make them faster to finish!'\n});",
             useJSGrader: true
           }
@@ -15678,6 +15678,7 @@ module.exports = Array.isArray || function (arr) {
       // get the quizId
       // set the start, correct, grading info
       this.ace = this.querySelector('#editor');
+
       // to match the starting tab
       this.currentCode = this.start.code;
 
@@ -15704,6 +15705,10 @@ module.exports = Array.isArray || function (arr) {
 
         if (e.keyCode === 13 && cmdDown) {
           self.runButton.onclick();
+        }
+
+        if (e.keyCode === 8) {
+
         }
       });
 
@@ -15866,7 +15871,6 @@ module.exports = Array.isArray || function (arr) {
       } catch (e) {
         this.set('currentCode', 'default');
         this.set('mode', 'text');
-        return;
       }
     },
     formatCorrect: function(isCorrect) {
@@ -16031,10 +16035,10 @@ module.exports = Array.isArray || function (arr) {
           var iFrameBody = '';
 
           switch (type) {
-            case 'js':
+            case 'javascript':
               iFrameBody = '<script>' + content + '<\/script>';
               break;
-            case 'iframe':
+            case 'html':
               iFrameBody = content;
               break;
             default:
