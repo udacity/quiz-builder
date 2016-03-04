@@ -145,16 +145,15 @@
           var iFrameContent = '';
 
           var iFrameStart = '<html><head>';
+          var iFrameHead = '<script src="bower_components/jquery/dist/jquery.min.js"><\/script>';
           var iFrameMiddle = '</head><body>';
-          var iFrameEnd = '</body></html>';
-
-          var iFrameHead = '<script src="bower_components/jquery/dist/jquery.min.js"><\/script><script>var performSubmission = function(o){ window.parent.performSubmission(o, \'' + id + '\'); };<\/script>';
-
           var iFrameBody = '';
+          var iFrameEnd = '</body></html>';
 
           switch (type) {
             case 'javascript':
               iFrameBody = '<script>' + content + '<\/script>';
+              iFrameHead = iFrameHead + '<script>var performSubmission = function(o){ window.parent.performSubmission(o, \'' + id + '\'); };<\/script>';
               break;
             case 'html':
               iFrameBody = content;
@@ -169,6 +168,11 @@
           }
 
           iFrameBody = iFrameBody + '<script>' + this.grading.code + '<\/script>';
+
+          if (type === 'html') {
+            iFrameBody = iFrameBody + '<script>window.parent.performSubmission(performSubmission(),"' + id + '");<\/script>'
+          }
+
           iFrameContent = iFrameStart + iFrameHead + iFrameMiddle + iFrameBody + iFrameEnd;
 
           var iframe = document.createElement('iframe');

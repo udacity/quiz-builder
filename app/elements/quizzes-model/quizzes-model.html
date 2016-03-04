@@ -5,13 +5,13 @@
         javascript: {
           start: '// students see this when they start',
           correct: '// this code is correct',
-          grading: '// use this method to register student results!\nfunction performSubmission() {\n\treturn {\n\t\tis_correct: false,\n\t\ttest_feedback: \'think about this to do better\',\n\t\ttest_comments: \'things that went well\',\n\t\tcongrats: \'nice job!\'\n\t}\n}',
+          grading: '// use this method to register student results!\nperformSubmission({\n\tis_correct: false,\n\ttest_feedback: \'think about this to do better\',\n\ttest_comments: \'things that went well\',\n\tcongrats: \'nice job!\'\n})',
           useJSGrader: true
         },
         html: {
           start: '<p>students see this when they start</p>',
           correct: '<p>this code is correct</p>',
-          grading: '// use this method to register student results!\nfunction performSubmission() {\n\treturn {\n\t\tis_correct: false,\n\t\ttest_feedback: \'think about this to do better\',\n\t\ttest_comments: \'things that went well\',\n\t\tcongrats: \'nice job!\'\n\t}\n}',
+          grading: 'function performSubmission() {\n\t// put your grading code here in this function!\n\n\t// return an object like the one below:\n\treturn{\n\t\tis_correct: false,\n\t\ttest_feedback: \'think about this to do better\',\n\t\ttest_comments: \'things that went well\',\n\t\tcongrats: \'nice job!\'\n\t}\n}',
           useJSGrader: true
         }
       },

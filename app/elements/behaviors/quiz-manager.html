@@ -82,7 +82,11 @@
       new Clipboard('#copy', {
         text: function(trigger) {
           var start = 'function performTesting() { return {result: \'noop\'}; };\n';
+
           var gradingCode = self.grading.code;
+
+          // TODO: for JS, replace performSubmission w/the whole grader.sendResultsToExecutor();
+          // for html, wrap whole thing in perform submission
           
           var cString = '';
           if (self.useJSGrader.checked) {
