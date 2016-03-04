@@ -15565,13 +15565,13 @@ module.exports = Array.isArray || function (arr) {
         javascript: {
           start: '// students see this when they start',
           correct: '// this code is correct',
-          grading: '// use this method to register student results!\nfunction performSubmission() {\n\treturn {\n\t\tis_correct: false,\n\t\ttest_feedback: \'think about this to do better\',\n\t\ttest_comments: \'things that went well\',\n\t\tcongrats: \'nice job!\'\n\t}\n}',
+          grading: 'function performSubmission() {\n\t// put your grading code here in this function!\n\n\t// return an object like the one below:\n\treturn{\n\t\tis_correct: false,\n\t\ttest_feedback: \'think about this to do better\',\n\t\ttest_comments: \'things that went well\',\n\t\tcongrats: \'nice job!\'\n\t}\n}',
           useJSGrader: true
         },
         html: {
           start: '<p>students see this when they start</p>',
           correct: '<p>this code is correct</p>',
-          grading: '// use this method to register student results!\nfunction performSubmission() {\n\treturn {\n\t\tis_correct: false,\n\t\ttest_feedback: \'think about this to do better\',\n\t\ttest_comments: \'things that went well\',\n\t\tcongrats: \'nice job!\'\n\t}\n}',
+          grading: 'function performSubmission() {\n\t// put your grading code here in this function!\n\n\t// return an object like the one below:\n\treturn{\n\t\tis_correct: false,\n\t\ttest_feedback: \'think about this to do better\',\n\t\ttest_comments: \'things that went well\',\n\t\tcongrats: \'nice job!\'\n\t}\n}',
           useJSGrader: true
         }
       },
@@ -15754,7 +15754,11 @@ module.exports = Array.isArray || function (arr) {
       new Clipboard('#copy', {
         text: function(trigger) {
           var start = 'function performTesting() { return {result: \'noop\'}; };\n';
+
           var gradingCode = self.grading.code;
+
+          // TODO: for JS, replace performSubmission w/the whole grader.sendResultsToExecutor();
+          // for html, wrap whole thing in perform submission
           
           var cString = '';
           if (self.useJSGrader.checked) {
@@ -15762,6 +15766,11 @@ module.exports = Array.isArray || function (arr) {
           } else {
             cString = start + gradingCode;
           }
+
+          if (self.quizType === 'javascript') {
+            cString = cString + ';\nperformSubmission();'
+          }
+
           return cString;
         }
       });
@@ -16027,16 +16036,15 @@ module.exports = Array.isArray || function (arr) {
           var iFrameContent = '';
 
           var iFrameStart = '<html><head>';
+          var iFrameHead = '<script src="bower_components/jquery/dist/jquery.min.js"><\/script>';
           var iFrameMiddle = '</head><body>';
-          var iFrameEnd = '</body></html>';
-
-          var iFrameHead = '<script src="bower_components/jquery/dist/jquery.min.js"><\/script><script>var performSubmission = function(o){ window.parent.performSubmission(o, \'' + id + '\'); };<\/script>';
-
           var iFrameBody = '';
+          var iFrameEnd = '</body></html>';
 
           switch (type) {
             case 'javascript':
               iFrameBody = '<script>' + content + '<\/script>';
+              iFrameHead = iFrameHead + '<script>var performSubmission = function(o){ window.parent.performSubmission(o, \'' + id + '\'); };<\/script>';
               break;
             case 'html':
               iFrameBody = content;
@@ -16051,6 +16059,13 @@ module.exports = Array.isArray || function (arr) {
           }
 
           iFrameBody = iFrameBody + '<script>' + this.grading.code + '<\/script>';
+
+          if (type === 'html') {
+            iFrameBody = iFrameBody + '<script>window.parent.performSubmission(performSubmission(),"' + id + '");<\/script>'
+          } else if (type === 'javascript') {
+            iFrameBody = iFrameBody + '<script>window.parent.performSubmission(performSubmission(),"' + id + '");<\/script>'
+          }
+
           iFrameContent = iFrameStart + iFrameHead + iFrameMiddle + iFrameBody + iFrameEnd;
 
           var iframe = document.createElement('iframe');
