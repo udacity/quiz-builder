@@ -6,6 +6,7 @@
       // get the quizId
       // set the start, correct, grading info
       this.ace = this.querySelector('#editor');
+
       // to match the starting tab
       this.currentCode = this.start.code;
 
@@ -32,6 +33,10 @@
 
         if (e.keyCode === 13 && cmdDown) {
           self.runButton.onclick();
+        }
+
+        if (e.keyCode === 8) {
+
         }
       });
 
@@ -194,7 +199,6 @@
       } catch (e) {
         this.set('currentCode', 'default');
         this.set('mode', 'text');
-        return;
       }
     },
     formatCorrect: function(isCorrect) {
