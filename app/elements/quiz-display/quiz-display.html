@@ -171,6 +171,8 @@
 
           if (type === 'html') {
             iFrameBody = iFrameBody + '<script>window.parent.performSubmission(performSubmission(),"' + id + '");<\/script>'
+          } else if (type === 'javascript') {
+            iFrameBody = iFrameBody + '<script>window.parent.performSubmission(performSubmission(),"' + id + '");<\/script>'
           }
 
           iFrameContent = iFrameStart + iFrameHead + iFrameMiddle + iFrameBody + iFrameEnd;

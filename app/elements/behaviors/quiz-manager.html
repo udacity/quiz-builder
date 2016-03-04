@@ -94,6 +94,11 @@
           } else {
             cString = start + gradingCode;
           }
+
+          if (self.quizType === 'javascript') {
+            cString = cString + ';\nperformSubmission();'
+          }
+
           return cString;
         }
       });
