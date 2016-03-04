@@ -96,7 +96,7 @@
           }
 
           if (self.quizType === 'javascript') {
-            cString = cString + ';\nperformSubmission();'
+            cString = cString + ';\n(function(){return new Grader()})().sendResultsToExecutor(performSubmission());'
           }
 
           return cString;
@@ -147,6 +147,10 @@
           code: 'default grading'
         }
       },
+      lastSelected: {
+        type: Number,
+        value: -1
+      },
       selected: {
         type: Number,
         observer: 'switchTabs',
@@ -195,6 +199,19 @@
     },
     switchTabs: function () {
       try {
+        // TODO: figure out why this doesn't work
+        // // makes sure whatever is in the editor is saved
+        // if (this.lastSelected === 0) {
+        //   this.set('start.code', this.currentCode);
+        // } else if (this.lastSelected === 1) {
+        //   this.set('correct.code', this.currentCode);
+        // } else if (this.lastSelected === 2) {
+        //   this.set('grading.code', this.currentCode);
+        // } else if (this.lastSelected === -1) {
+        //   // do nothing
+        // }
+
+        // load in the new tab's content
         if (this.selected === 0) {
           this.set('currentCode', this.start.code);
           this.set('mode', this.quizType);
@@ -205,6 +222,9 @@
           this.set('currentCode', this.grading.code);
           this.set('mode', 'javascript');
         }
+
+        // save this for the next time the tabs get switched
+        this.set('lastSelected', this.selected);
       } catch (e) {
         this.set('currentCode', 'default');
         this.set('mode', 'text');
