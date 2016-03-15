@@ -132,7 +132,8 @@ gulp.task('copy', function() {
     '!**/.DS_Store',
     'app/bower_components/ace-builds/src-min-noconflict/mode-javascript.js',
     'app/bower_components/ace-builds/src-min-noconflict/mode-html.js',
-    'app/bower_components/ace-builds/src-min-noconflict/theme-clouds.js'
+    'app/bower_components/ace-builds/src-min-noconflict/theme-clouds.js',
+    'app/bower_components/ace-builds/src-min-noconflict/theme-udacity.js'
   ], {
     dot: true
   }).pipe(gulp.dest(dist()));
